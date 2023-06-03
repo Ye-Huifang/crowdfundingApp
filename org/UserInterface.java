@@ -73,9 +73,13 @@ public class UserInterface {
 		
 		List<Donation> donations = fund.getDonations();
 		System.out.println("Number of donations: " + donations.size());
+		long totalDonations = 0;
 		for (Donation donation : donations) {
+			totalDonations += donation.getAmount();
 			System.out.println("* " + donation.getContributorName() + ": $" + donation.getAmount() + " on " + donation.getDate());
 		}
+		int percentage = (int) (totalDonations * 100.0 / fund.getTarget());
+		System.out.println("Total donation amount: $" + totalDonations + " (" + percentage + "% of target)");
 	
 		
 		System.out.println("Press the Enter key to go back to the listing of funds");
