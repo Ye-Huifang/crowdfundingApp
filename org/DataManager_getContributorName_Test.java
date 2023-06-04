@@ -32,4 +32,20 @@ public class DataManager_getContributorName_Test {
         String name = dm.getContributorName("1");
         assertNull(name);
     }
+
+    @Test
+    public void testGetContributorNameInvalidJson() {
+        DataManager dm = new DataManager(new WebClient("localhost", 3001) {
+            @Override
+            public String makeRequest(String resource, Map<String, Object> queryParams) {
+                // Return an invalid JSON string
+                return "This is not a valid JSON string";
+            }
+        });
+
+        // Since the JSON string is invalid, the getContributorName method should throw an exception and return null
+        String name = dm.getContributorName("testId");
+        assertNull(name);
+    }
+
 }

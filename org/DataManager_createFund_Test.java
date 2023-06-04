@@ -46,4 +46,21 @@ public class DataManager_createFund_Test {
 		Fund f = dm.createFund("12345", "new fund", "this is the new fund", 10000);
 		assertNull(f);
 	}
+
+	@Test
+	public void testCreateFundInvalidJson() {
+		DataManager dm = new DataManager(new WebClient("localhost", 3001) {
+			@Override
+			public String makeRequest(String resource, Map<String, Object> queryParams) {
+				// Return an invalid JSON string
+				return "This is not a valid JSON string";
+			}
+		});
+
+		Fund fund = dm.createFund("orgId", "fundName", "fundDescription", 1000);
+
+		// Since the JSON string is invalid, the createFund method should return null
+		assertNull(fund);
+	}
+
 }
