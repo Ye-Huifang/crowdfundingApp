@@ -138,39 +138,36 @@ public class MakeDonationActivity extends AppCompatActivity {
         }
 
         EditText amountField = findViewById(R.id.amountField);
-        String amount = amountField.getText().toString();
+        String amountStr = amountField.getText().toString();
+        long amount;
+        try {
+            amount = Long.parseLong(amountStr);
+        } catch (NumberFormatException e) {
+            Toast.makeText(this, "Invalid donation amount!", Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        if (amount <= 0) {
+            Toast.makeText(this, "Donation amount must be positive!", Toast.LENGTH_LONG).show();
+            return;
+        }
+
         Contributor contributor = MainActivity.contributor;
         String contributorId = contributor.getId();
 
         Log.v("makeDonation", orgId + " " + fundId + " " + amount + " " + contributorId);
 
-        boolean success = dataManager.makeDonation(contributorId, fundId, amount);
+        boolean success = dataManager.makeDonation(contributorId, fundId, Long.toString(amount));
 
         if (success) {
             Toast.makeText(this, "Thank you for your donation!", Toast.LENGTH_LONG).show();
-            contributor.getDonations().add(new Donation(selectedFund.getName(), contributor.getName(), Long.parseLong(amount), new Date().toString()));
+            contributor.getDonations().add(new Donation(selectedFund.getName(), contributor.getName(), amount, new Date().toString()));
 
             Executor executor = Executors.newSingleThreadExecutor();
             executor.execute( () -> {
-                        try { Thread.sleep(3000); } catch (Exception e) { }
-                        finish();
-                    });
-            /*
-            // this approach is no longer supported
-            new AsyncTask<String, String, String>() {
-
-                protected String doInBackground(String... inputs) {
-                    try { Thread.sleep(3000); }
-                    catch (Exception e) { }
-                    return null;
-                }
-
-                protected void onPostExecute(String input) {
-                    finish();
-                }
-            }.execute();
-            */
-
+                try { Thread.sleep(3000); } catch (Exception e) { }
+                finish();
+            });
         }
         else {
             Toast.makeText(this, "Sorry, something went wrong!", Toast.LENGTH_LONG).show();
