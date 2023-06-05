@@ -1,6 +1,7 @@
 package edu.upenn.cis573.project;
 
-import android.util.Log;
+//import android.util.Log;
+
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -31,7 +32,7 @@ public class DataManager {
             map.put("login", login);
             map.put("password", password);
             String response = client.makeRequest("/findContributorByLoginAndPassword", map);
-
+            System.out.println(response);
             JSONObject json = new JSONObject(response);
             String status = (String)json.get("status");
 
@@ -56,7 +57,7 @@ public class DataManager {
 
                     JSONObject jsonDonation = donations.getJSONObject(i);
 
-                    String fund = getFundName((String)jsonDonation.get("fund"));
+                    String fund = (String)jsonDonation.get("fund");
                     String date = (String)jsonDonation.get("date");
                     long amount = (Integer)jsonDonation.get("amount");
 
