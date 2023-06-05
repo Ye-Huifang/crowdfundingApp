@@ -138,17 +138,19 @@ public class MakeDonationActivity extends AppCompatActivity {
         }
 
         EditText amountField = findViewById(R.id.amountField);
-        String amountStr = amountField.getText().toString();
+        String amountString = amountField.getText().toString();
         long amount;
-        try {
-            amount = Long.parseLong(amountStr);
-        } catch (NumberFormatException e) {
-            Toast.makeText(this, "Invalid donation amount!", Toast.LENGTH_LONG).show();
-            return;
-        }
 
-        if (amount <= 0) {
-            Toast.makeText(this, "Donation amount must be positive!", Toast.LENGTH_LONG).show();
+        try {
+            amount = Long.parseLong(amountString);
+            if (amount <= 0) {
+                Toast.makeText(this, "Invalid donation amount. Please enter a positive value.", Toast.LENGTH_LONG).show();
+                amountField.setText(""); // clears the text field for re-entry
+                return;
+            }
+        } catch (NumberFormatException e) {
+            Toast.makeText(this, "Invalid donation amount. Please enter a valid number.", Toast.LENGTH_LONG).show();
+            amountField.setText(""); // clears the text field for re-entry
             return;
         }
 
@@ -157,7 +159,7 @@ public class MakeDonationActivity extends AppCompatActivity {
 
         Log.v("makeDonation", orgId + " " + fundId + " " + amount + " " + contributorId);
 
-        boolean success = dataManager.makeDonation(contributorId, fundId, Long.toString(amount));
+        boolean success = dataManager.makeDonation(contributorId, fundId, String.valueOf(amount));
 
         if (success) {
             Toast.makeText(this, "Thank you for your donation!", Toast.LENGTH_LONG).show();
