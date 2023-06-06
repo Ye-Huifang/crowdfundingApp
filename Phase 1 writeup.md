@@ -20,7 +20,7 @@ In the `displayFund(int fundNumber)` method, I declare a variable `totalDonation
 
 ## Task 1.4. Contributor (Android) App testing and debugging
 
-In the test section, I created 4 junit test classes for each method inside `DataManager` class. The attempt login test cases mainly covers 3 scenarios, for example when the login is successful and all fields are correctly read, when the login fails, and when the response is not in json format. The `DataManager_getFundName_Test` consists of three test cases, covered accordingly by testSuccess, testFailure, and testException. This test gets the fund name info from `/findFundById` payload. The `DataManager_getAllOrganizations_Test` mainly tests the `getAllOrganization` method which returns a list of Organizations. The response contains a list of Organizations and within each Organization there is a list of funds.
+In the test section, I created 4 junit test classes for each method inside `DataManager` class. The attempt login test cases mainly covers 4 scenarios, for example when the login is successful and all fields are correctly read but there is single donation, the case similar to the previous one but have multiple donations, when the login fails, and when the response is not in json format. The `DataManager_getFundName_Test` consists of three test cases, covered accordingly by testSuccess, testFailure, and testException. This test gets the fund name info from `/findFundById` payload. The `DataManager_getAllOrganizations_Test` mainly tests the `getAllOrganization` method which returns a list of Organizations. The response contains a list of Organizations and within each Organization there is a list of funds.
 
 ## Task 1.5. Contributor (Android) App display total donations
 
@@ -41,7 +41,7 @@ String description = (String)data.get(“descrption”);
 ```
 Contributor contributor = new Contributor(id, name, email, creditCardNumber, creditCardCVV, creditCardExpiryYear, creditCardExpiryMonth, creditCardPostCode);
 ```
-2. The input should already be string instead of integer due to the datatype set in contributor class
+2. The input should already be string instead of integer due to the datatype set in contributor class. So i deleted the (Integer) and toString()
 ```
 String creditCardExpiryMonth = ((Integer)data.get("creditCardExpiryMonth")).toString();
 String creditCardExpiryYear = ((Integer)
