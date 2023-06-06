@@ -1,7 +1,6 @@
 package edu.upenn.cis573.project;
 
-import android.util.Log;
-
+//import android.util.Log;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -27,14 +26,14 @@ public class DataManager {
      */
     public Contributor attemptLogin(String login, String password) {
 
-        try {
+        try { 
             Map<String, Object> map = new HashMap<>();
             map.put("login", login);
             map.put("password", password);
             String response = client.makeRequest("/findContributorByLoginAndPassword", map);
-            System.out.println(response);
+
             JSONObject json = new JSONObject(response);
-            String status = (String)json.get("status");
+            String status = (String)json.get("status"); 
 
             if (status.equals("success")) {
                 JSONObject data = (JSONObject)json.get("data");
@@ -43,11 +42,11 @@ public class DataManager {
                 String email = (String)data.get("email");
                 String creditCardNumber = (String)data.get("creditCardNumber");
                 String creditCardCVV = (String)data.get("creditCardCVV");
-                String creditCardExpiryMonth = ((Integer)data.get("creditCardExpiryMonth")).toString();
-                String creditCardExpiryYear = ((Integer)data.get("creditCardExpiryYear")).toString();
+                String creditCardExpiryMonth = (String)data.get("creditCardExpiryMonth");
+                String creditCardExpiryYear = (String)data.get("creditCardExpiryYear");
                 String creditCardPostCode = (String)data.get("creditCardPostCode");
 
-                Contributor contributor = new Contributor(id, name, email, creditCardNumber, creditCardCVV, creditCardExpiryYear, creditCardExpiryMonth, creditCardPostCode);
+                Contributor contributor = new Contributor(id, name, email, creditCardNumber, creditCardCVV, creditCardExpiryMonth, creditCardExpiryYear, creditCardPostCode);
 
                 List<Donation> donationList = new LinkedList<>();
 
@@ -56,15 +55,14 @@ public class DataManager {
                 for (int i = 0; i < donations.length(); i++) {
 
                     JSONObject jsonDonation = donations.getJSONObject(i);
-
-                    String fund = (String)jsonDonation.get("fund");
+                    String fund = getFundName((String)jsonDonation.get("fund"));
                     String date = (String)jsonDonation.get("date");
                     long amount = (Integer)jsonDonation.get("amount");
 
                     Donation donation = new Donation(fund, name, amount, date);
                     donationList.add(donation);
 
-                }
+                } 
 
                 contributor.setDonations(donationList);
 
@@ -107,7 +105,7 @@ public class DataManager {
             e.printStackTrace();
             return null;
         }
-    }
+    } 
 
     /**
      * Get information about all of the organizations and their funds.

@@ -15,8 +15,9 @@ public class DataManager_attempLogin_Test {
             public String makeRequest(String resource, Map<String, Object> queryParams) {
             	if (resource.equals("/findContributorByLoginAndPassword")) {
             		return "{\"status\":\"success\",\"data\":{\"_id\":\"12345\",\"name\":\"ConName\",\"email\":\"test@123.com\",\"creditCardNumber\":\"245236234\", \"creditCardCVV\": \"932\", "
-                    		+ "\"creditCardExpiryMonth\":3, \"creditCardExpiryYear\":3,\"creditCardPostCode\":\"25342\",\"donations\":[{\"fund\":\"fund1\",\"date\":\"2023-01-01\",\"amount\" : 214}]}}";
-                    	
+                    		+ "\"creditCardExpiryMonth\":\"3\", \"creditCardExpiryYear\":\"2022\",\"creditCardPostCode\":\"25342\",\"donations\":[{\"fund\":\"fund1\",\"date\":\"2023-01-01\",\"amount\" : 214}]}}";
+            	} else if (resource.equals("/findFundNameById")) {
+            		return "{\"status\":\"success\",\"data\":\"fund1\"}";
             	} else {
             		return null;
             	}
@@ -32,7 +33,8 @@ public class DataManager_attempLogin_Test {
         assertEquals("245236234", con.getCreditCardNumber());
         assertEquals("932", con.getCreditCardCVV());
         assertEquals("3", con.getCreditCardExpiryMonth());
-        assertEquals("3", con.getCreditCardExpiryYear());
+        assertEquals("2022", con.getCreditCardExpiryYear());
+        assertEquals("25342", con.getCreditCardPostCode());
         Donation donation = con.getDonations().get(0);
         
         //check fund
@@ -41,6 +43,7 @@ public class DataManager_attempLogin_Test {
         assertEquals(214, donation.getAmount());
     }
 	
+	
 	@Test
     public void testAttemptLoginSuccess_Multi() {
         DataManager dm = new DataManager(new WebClient("localhost", 3001) {
@@ -48,8 +51,11 @@ public class DataManager_attempLogin_Test {
             public String makeRequest(String resource, Map<String, Object> queryParams) {
             	if (resource.equals("/findContributorByLoginAndPassword")) {
             		return "{\"status\":\"success\",\"data\":{\"_id\":\"12345\",\"name\":\"ConName\",\"email\":\"test@123.com\",\"creditCardNumber\":\"245236234\", \"creditCardCVV\": \"932\", "
-                    		+ "\"creditCardExpiryMonth\":3, \"creditCardExpiryYear\":3,\"creditCardPostCode\":\"25342\",\"donations\":[{\"fund\":\"fund1\",\"date\":\"2023-01-01\",\"amount\" : 214}]}}";
+                    		+ "\"creditCardExpiryMonth\":\"3\", \"creditCardExpiryYear\":\"2022\",\"creditCardPostCode\":\"25342\",\"donations\":[{\"fund\":\"fund1\",\"date\":\"2023-01-01\",\"amount\" : 214},"
+                    		+ "{\"fund\":\"fund2\",\"date\":\"2021-05-01\",\"amount\" : 323}]}}";
                     	
+            	} else if (resource.equals("/findFundNameById")) {
+            		return "{\"status\":\"success\",\"data\":\"fund1\"}";
             	} else {
             		return null;
             	}
@@ -65,13 +71,21 @@ public class DataManager_attempLogin_Test {
         assertEquals("245236234", con.getCreditCardNumber());
         assertEquals("932", con.getCreditCardCVV());
         assertEquals("3", con.getCreditCardExpiryMonth());
-        assertEquals("3", con.getCreditCardExpiryYear());
-        Donation donation = con.getDonations().get(0);
+        assertEquals("2022", con.getCreditCardExpiryYear());
         
-        //check fund
-        assertEquals("fund1", donation.getFundName());
-        assertEquals("2023-01-01", donation.getDate());
-        assertEquals(214, donation.getAmount());
+        //check fund 1
+        Donation donation1 = con.getDonations().get(0);
+        assertEquals("fund1", donation1.getFundName());
+        assertEquals("ConName", donation1.getContributorName());
+        assertEquals("2023-01-01", donation1.getDate());
+        assertEquals(214, donation1.getAmount());
+        
+        //check fund 2
+        Donation donation2 = con.getDonations().get(1);
+        assertEquals("fund1", donation2.getFundName());
+        assertEquals("ConName", donation2.getContributorName());
+        assertEquals("2021-05-01", donation2.getDate());
+        assertEquals(323, donation2.getAmount());
     }
 	
 	@Test

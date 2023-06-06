@@ -17,15 +17,15 @@ public class DataManager {
 	public DataManager(WebClient client) {
 		this.client = client;
 	}
-
+ 
 	/**
 	 * Attempt to log the user into an Organization account using the login and password.
 	 * This method uses the /findOrgByLoginAndPassword endpoint in the API
 	 * @return an Organization object if successful; null if unsuccessful
-	 */
+	 */ 
 	public Organization attemptLogin(String login, String password) {
 
-		try {
+		try { 
 			Map<String, Object> map = new HashMap<>();
 			map.put("login", login);
 			map.put("password", password);
@@ -34,7 +34,7 @@ public class DataManager {
 			JSONParser parser = new JSONParser();
 			JSONObject json = (JSONObject) parser.parse(response);
 			String status = (String)json.get("status");
-
+ 
 
 			if (status.equals("success")) {
 				JSONObject data = (JSONObject)json.get("data");
