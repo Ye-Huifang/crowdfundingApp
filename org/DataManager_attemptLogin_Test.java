@@ -42,7 +42,7 @@ public class DataManager_attemptLogin_Test {
             @Override
             public String makeRequest(String resource, Map<String, Object> queryParams) {
                 if(resource.equals("/findOrgByLoginAndPassword")) {
-                    return "{\"status\":\"success\",\"data\":{\"_id\":\"12345\",\"name\":\"OrgName\",\"description\":\"OrgDescription\",\"funds\":[{\"_id\":\"fund1\",\"name\":\"fundName1\",\"description\":\"fundDescription1\",\"target\":1000,\"donations\":[{\"contributor\":\"contributor1\",\"amount\":500,\"date\":\"2023-01-01\"}]}]}}";
+                	return "{\"status\":\"success\",\"data\":{\"_id\":\"12345\",\"name\":\"OrgName\",\"description\":\"OrgDescription\",\"funds\":[{\"_id\":\"fund1\",\"name\":\"fundName1\",\"description\":\"fundDescription1\",\"target\":1000,\"donations\":[{\"contributor\":\"contributor1\",\"amount\":500,\"date\":\"2023-01-01\"}]}, {\"_id\":\"fund2\",\"name\":\"fundName2\",\"description\":\"fundDescription2\",\"target\":400,\"donations\":[{\"contributor\":\"contributor2-1\",\"amount\":100,\"date\":\"2023-01-04\"}, {\"contributor\":\"contributor2-2\",\"amount\":700,\"date\":\"2023-01-02\"}]}]}}";
                 } else if(resource.equals("/findContributorNameById")) {
                     return "{\"status\":\"success\",\"data\":\"ContributorName\"}";
                 } else {
@@ -58,7 +58,7 @@ public class DataManager_attemptLogin_Test {
         assertEquals("OrgDescription", org.getDescription());
 
         // Check fund
-        assertEquals(1, org.getFunds().size());
+        assertEquals(2, org.getFunds().size());
         Fund fund = org.getFunds().get(0);
         assertEquals("fund1", fund.getId());
         assertEquals("fundName1", fund.getName());
@@ -72,6 +72,29 @@ public class DataManager_attemptLogin_Test {
         assertEquals("ContributorName", donation.getContributorName());
         assertEquals(500, donation.getAmount());
         assertEquals("2023-01-01", donation.getDate());
+        
+        
+        // Check fund 2
+        Fund fund2 = org.getFunds().get(1);
+        assertEquals("fund2", fund2.getId());
+        assertEquals("fundName2", fund2.getName());
+        assertEquals("fundDescription2", fund2.getDescription());
+        assertEquals(400, fund2.getTarget());
+
+        // Check donation 2
+        assertEquals(2, fund2.getDonations().size());
+        Donation donation_2_1 = fund2.getDonations().get(0);
+        assertEquals("fund2", donation_2_1.getFundId());
+        assertEquals("ContributorName", donation_2_1.getContributorName());
+        assertEquals(100, donation_2_1.getAmount());
+        assertEquals("2023-01-04", donation_2_1.getDate());
+        
+        // Check donation 2-2
+        Donation donation_2_2 = fund2.getDonations().get(1);
+        assertEquals("fund2", donation_2_2.getFundId());
+        assertEquals("ContributorName", donation_2_2.getContributorName());
+        assertEquals(700, donation_2_2.getAmount());
+        assertEquals("2023-01-02", donation_2_2.getDate());
     }
 
     @Test

@@ -1,6 +1,6 @@
 package edu.upenn.cis573.project;
 
-//import android.util.Log;
+import android.util.Log;
 
 
 import java.util.HashMap;
@@ -120,7 +120,7 @@ public class DataManager {
             String response = client.makeRequest("/allOrgs", map);
 
             JSONObject json = new JSONObject(response);
-            String status = (String)json.get("status");
+            String status = (String)json.get("status"); 
 
             if (status.equals("success")) {
 

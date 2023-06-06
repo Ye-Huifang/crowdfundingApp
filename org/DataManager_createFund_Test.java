@@ -62,5 +62,19 @@ public class DataManager_createFund_Test {
 		// Since the JSON string is invalid, the createFund method should return null
 		assertNull(fund);
 	}
+	
+	@Test
+	public void testExceptionCreation() {
+		DataManager dm = new DataManager(new WebClient("localhost", 3001) {
+			@Override
+				public String makeRequest(String resource, Map<String, Object> queryParams) {
+					return "{}";
+				}
+			});
+	
+			String name = dm.getContributorName("testId");
+	
+			assertNull(name);
+		}
 
 }
