@@ -32,10 +32,21 @@ Modified `onMakeDonationButtonClick()` method in MakeDonationActivity class of c
 # 3. Bugs Found and Fixed
 
 ## Task 1.2. Organization (Java) App debugging
+Fixed the misspelling of “description” to successfully retrieve the description information.
+String description = (String)data.get(“descrption”);
 `String description = (String)data.get("descrption");`
 
 ## Task 1.4. Contributor (Android) App testing and debugging
-`Contributor contributor = new Contributor(id, name, email, creditCardNumber, creditCardCVV, creditCardExpiryMonth, creditCardExpiryYear, creditCardPostCode);`
+1. Switched the position of `creditCardExpiryMonth` and `creditCardExpiryYear` to comply with the order in Contributor constructor paraters. 
+```
+Contributor contributor = new Contributor(id, name, email, creditCardNumber, creditCardCVV, creditCardExpiryYear, creditCardExpiryMonth, creditCardPostCode);
+```
+2. The input should already be string instead of integer due to the datatype set in contributor class
+```
+String creditCardExpiryMonth = ((Integer)data.get("creditCardExpiryMonth")).toString();
+String creditCardExpiryYear = ((Integer)
+data.get("creditCardExpiryYear")).toString();
+```
 
 # 4. Team Contributions
 
