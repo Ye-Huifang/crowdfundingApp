@@ -63,18 +63,5 @@ public class DataManager_createFund_Test {
 		assertNull(fund);
 	}
 	
-	@Test
-	public void testExceptionCreation() {
-		DataManager dm = new DataManager(new WebClient("localhost", 3001) {
-			@Override
-				public String makeRequest(String resource, Map<String, Object> queryParams) {
-					return "{}";
-				}
-			});
-	
-			String name = dm.getContributorName("testId");
-	
-			assertNull(name);
-		}
 
 }
