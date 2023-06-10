@@ -32,7 +32,7 @@ public class DataManager {
 			map.put("login", login);
 			map.put("password", password);
 			String response = client.makeRequest("/findOrgByLoginAndPassword", map);
-			
+			System.out.println(response);
 			JSONParser parser = new JSONParser();
 			JSONObject json = (JSONObject) parser.parse(response);
 			String status = (String)json.get("status");
@@ -151,6 +151,43 @@ public class DataManager {
 		catch (Exception e) {
 			e.printStackTrace();
 			return null;
+		}	
+	}
+	
+	public Fund deleteFund(String fundId) {
+		if (client == null) {
+			throw new IllegalStateException();
+		}
+		if (fundId == null) {
+			throw new IllegalArgumentException();
+		}
+		try {
+
+			Map<String, Object> map = new HashMap<>();
+			map.put("id", fundId);
+			String response = client.makeRequest("/deleteFund", map);
+			if (response == null) {
+				throw new IllegalStateException();
+			}
+			JSONParser parser = new JSONParser();
+			JSONObject json = (JSONObject) parser.parse(response);
+			
+			String status = (String)json.get("status");
+
+			if (status.equals("success")) {
+				JSONObject fund = (JSONObject)json.get("data");
+				String name = (String)fund.get("name");
+				String description = (String)fund.get("description");
+				long target = (Long)fund.get("target");
+				return new Fund(fundId, name, description, target);
+			}
+			else throw new IllegalStateException();
+
+		}
+		catch (Exception e) {
+			throw new IllegalStateException();
+//			e.printStackTrace();
+//			return null;
 		}	
 	}
 }

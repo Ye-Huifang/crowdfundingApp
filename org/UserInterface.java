@@ -58,12 +58,28 @@ public class UserInterface {
 
 		
 	}
+	public void deleteFund(int fundNumber) {
+		
+		System.out.print("Are you sure you want to delete this fund? ");
+		System.out.print("Press 1 to confirm ");
+		int option = in.nextInt();
+		in.nextLine();
+		if (option == 1) {
+			Fund fund = org.getFunds().get(fundNumber - 1);
+			Fund removeFund = dataManager.deleteFund(fund.getId());
+			List<Fund> newlist = org.getFunds();
+			newlist.remove(fundNumber - 1);
+		}
+		else {
+			displayFund(fundNumber); 
+		}
+		
+	}
 	
 	
 	public void displayFund(int fundNumber) {
 		
 		Fund fund = org.getFunds().get(fundNumber - 1);
-		System.out.println("-----------------------------------------------------");
 		System.out.println("\n\n");
 		System.out.println("Here is information about this fund:");
 		System.out.println("Name: " + fund.getName());
@@ -106,9 +122,16 @@ public class UserInterface {
 		int percentage = (int) (totalDonations * 100.0 / fund.getTarget());
 		System.out.println("Total donation amount: $" + totalDonations + " (" + percentage + "% of target)");
 	
-		
+		System.out.println("Enter 0 to delete this fund");
 		System.out.println("Press the Enter key to go back to the listing of funds");
-		in.nextLine();
+		int option = in.nextInt();
+		 
+		if (option == 0) {
+			deleteFund(fundNumber); 
+		} else {
+			in.nextLine();
+		}
+
 		
 		
 		

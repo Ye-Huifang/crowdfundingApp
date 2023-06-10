@@ -36,5 +36,9 @@ public class Organization {
 		funds.add(fund);
 	}
 	
+	public void setFund(List<Fund> funds) {
+		this.funds = funds;
+	}
+	
 
 }
