@@ -13,9 +13,11 @@ import org.json.simple.parser.ParseException;
 public class DataManager {
 
 	private final WebClient client;
+	private Map<String, String> contributorNameCache;
 
 	public DataManager(WebClient client) {
 		this.client = client;
+		this.contributorNameCache = new HashMap<>();
 	}
  
 	/**
@@ -60,7 +62,15 @@ public class DataManager {
 					while(it2.hasNext()){
 						JSONObject donation = (JSONObject) it2.next();
 						String contributorId = (String)donation.get("contributor");
-						String contributorName = this.getContributorName(contributorId);
+
+						String contributorName = null;
+						if (contributorNameCache.containsKey(contributorId)) {
+							contributorName = contributorNameCache.get(contributorId);
+						} else {
+							contributorName = this.getContributorName(contributorId);
+							contributorNameCache.put(contributorId, contributorName);
+						}
+
 						long amount = (Long)donation.get("amount");
 						String date = (String)donation.get("date");
 						donationList.add(new Donation(fundId, contributorName, amount, date));

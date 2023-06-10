@@ -13,9 +13,10 @@ import org.json.JSONArray;
 public class DataManager {
 
     private WebClient client;
-
+    private Map<String, String> fundNameCache;
     public DataManager(WebClient client) {
         this.client = client;
+        this.fundNameCache = new HashMap<>();
     }
 
 
@@ -42,8 +43,8 @@ public class DataManager {
                 String email = (String)data.get("email");
                 String creditCardNumber = (String)data.get("creditCardNumber");
                 String creditCardCVV = (String)data.get("creditCardCVV");
-                String creditCardExpiryMonth = (String)data.get("creditCardExpiryMonth");
-                String creditCardExpiryYear = (String)data.get("creditCardExpiryYear");
+                String creditCardExpiryMonth = ((Integer)data.get("creditCardExpiryMonth")).toString();
+                String creditCardExpiryYear = ((Integer)data.get("creditCardExpiryYear")).toString();
                 String creditCardPostCode = (String)data.get("creditCardPostCode");
 
                 Contributor contributor = new Contributor(id, name, email, creditCardNumber, creditCardCVV, creditCardExpiryMonth, creditCardExpiryYear, creditCardPostCode);
@@ -55,7 +56,15 @@ public class DataManager {
                 for (int i = 0; i < donations.length(); i++) {
 
                     JSONObject jsonDonation = donations.getJSONObject(i);
-                    String fund = getFundName((String)jsonDonation.get("fund"));
+                    String fund;
+                    String fundId = (String)jsonDonation.get("fund");
+                    if (fundNameCache.containsKey(fundId)) {
+                        fund = fundNameCache.get(fundId);
+                    } else {
+                        fund = getFundName(fundId);
+                        fundNameCache.put(fundId, fund);
+                    }
+
                     String date = (String)jsonDonation.get("date");
                     long amount = (Integer)jsonDonation.get("amount");
 
