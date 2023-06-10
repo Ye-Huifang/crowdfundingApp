@@ -1,5 +1,4 @@
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 public class UserInterface {
 	
@@ -64,7 +63,7 @@ public class UserInterface {
 	public void displayFund(int fundNumber) {
 		
 		Fund fund = org.getFunds().get(fundNumber - 1);
-		
+		System.out.println("-----------------------------------------------------");
 		System.out.println("\n\n");
 		System.out.println("Here is information about this fund:");
 		System.out.println("Name: " + fund.getName());
@@ -74,10 +73,36 @@ public class UserInterface {
 		List<Donation> donations = fund.getDonations();
 		System.out.println("Number of donations: " + donations.size());
 		long totalDonations = 0;
-		for (Donation donation : donations) {
-			totalDonations += donation.getAmount();
-			System.out.println("* " + donation.getContributorName() + ": $" + donation.getAmount() + " on " + donation.getDate());
-		}
+        TreeMap<String, List<Integer>> treeMap = new TreeMap<>();
+
+        for (Donation donation : donations) {
+            totalDonations += donation.getAmount();
+            String name = donation.getContributorName();
+
+            List<Integer> prevList = treeMap.getOrDefault(name, new ArrayList<>());
+            int count = prevList.isEmpty() ? 1 : prevList.get(0) + 1;
+            int totalAmount = prevList.isEmpty() ? (int) donation.getAmount() : prevList.get(1) + (int) donation.getAmount();
+
+            List<Integer> newList = new ArrayList<>();
+            newList.add(count);
+            newList.add(totalAmount);
+            treeMap.put(name, newList);
+        }
+
+        TreeMap<String, List<Integer>> sortedTreeMap = new TreeMap<>((key1, key2) -> {
+            List<Integer> list1 = treeMap.get(key1);
+            List<Integer> list2 = treeMap.get(key2);
+            return list2.get(1) - list1.get(1);
+        });
+        sortedTreeMap.putAll(treeMap);
+
+        for (Map.Entry<String, List<Integer>> entry : sortedTreeMap.entrySet()) {
+            String name = entry.getKey();
+            List<Integer> values = entry.getValue();
+            int count = values.get(0);
+            int totalAmount = values.get(1);
+            System.out.println("* " + name + ", " + count + " donations, $" + totalAmount + " total");
+        }
 		int percentage = (int) (totalDonations * 100.0 / fund.getTarget());
 		System.out.println("Total donation amount: $" + totalDonations + " (" + percentage + "% of target)");
 	
