@@ -1,8 +1,8 @@
 # 1. Additional Tasks
 
-- **Task 1.4.** Contributor (Android) App testing and debugging
-- **Task 1.5.** Contributor (Android) App display total donations
-- **Task 1.6.** Contributor (Android) App input error handling
+- **Task 2.4.** Contributor App caching
+- **Task 2.7.** Organization App delete fund
+- **Task 2.11.** Unattempted Additional Task from Phase 1
 
 # 2. Task Descriptions
 
@@ -14,17 +14,18 @@ Add `testFailedCreation` and `testCreateFundInvalidJson` unit tests in the exist
 When running the DataManager_attemptLogin_Test.java, the testAttemptLoginSuccess and testAttemptLoginwithFundandDonation didn’t pass. Both of them encountered error on the line `assertEquals("OrgDescription", org.getDescription());` So I checked on the DataManager’s attemptLogin and especially looked for the part where we’re trying to get the description from `/findOrgByLoginAndPassword` request. And on
 the line 41 `String description = (String)data.get("descrption");` the key was written as `descrption` which doesn’t align with the string response returned from WebClient. Thus the datamanager was unable to locate the description info. After changing the name, all test cases passed.
 
-## Task 1.3. Organization (Java) App display total donations for fund
+## Task 2.3. Organization App aggregate donations by contributor
 
-In the `displayFund(int fundNumber)` method, I declare a variable `totalDonations` and initialize it to 0 to compute the total donations. In the loop that goes through each donation in the list, I then accumulate the amount of each donation to `totalDonations`. After the loop, I calculate the percentage of the target achieved by dividing the totalDonations by the fund’s target and multiply by 100. Finally, I print out the total donation amount and the percentage of the target that has been achieved.
+In the displayFund() method of the userinterface class, I added a treemap with a customized comparable that helps sort the aggregate donations based on the descending order of the donation amount. The treemap uses contributor name as key, and a list as values, the first element of the list is the number of times the contributor has donated, and the second element of the list is the total amount of their donations. After having everything sorted and stored in a treemap, I then iterate through the treemap and retrieve every entry and print them on the console. 
 
 ## Task 1.4. Contributor (Android) App testing and debugging
 
 In the test section, I created 4 junit test classes for each method inside `DataManager` class. The attempt login test cases mainly covers 4 scenarios, for example when the login is successful and all fields are correctly read but there is single donation, the case similar to the previous one but have multiple donations, when the login fails, and when the response is not in json format. The `DataManager_getFundName_Test` consists of three test cases, covered accordingly by testSuccess, testFailure, and testException. This test gets the fund name info from `/findFundById` payload. The `DataManager_getAllOrganizations_Test` mainly tests the `getAllOrganization` method which returns a list of Organizations. The response contains a list of Organizations and within each Organization there is a list of funds.
 
-## Task 1.5. Contributor (Android) App display total donations
+## Task 2.7. Organization App delete fund
 
-In the `onResume()` method, I first update the definition of the donations array to account for an additional string, i.e. the total donation. Initially, the donations array’s size is set to be the same as the number of donations, and I increase its size by one to fit in the total donations string. I declare a new long variable called `totalDonation` and initialize it to 0. This variable is used to accumulate the total donation amount from the user. Inside the for loop that iterates over the donations list, I add each donation's amount to `totalDonation`, which calculates the sum of all donations made by the contributor. After the loop, I add a new entry to the donations array at the index position to display the information.
+This task consists of four parts, adding a deleteFund function in DataManager, displaying and providing navigation in UserInterface, writing Junit test cases and debugging, and implementing defensive programming. In the DataManager I added the deleteFund function which corresponds to the /deleteFund route, then in the UserInterface I added a deletedFund function as well which prompts the user to confirm for the deletion. In the displayFund method in UserInterface I also added prompts for users to choose the option of deleting the current fund. As for testing and defensive programming, I added a DataManager_deletedFund_Test class which resembles the DataManagerRobustnessTest class and passed all the test cases while gaining 100% coverage rate on the deleteFund method.
+
 ## Task 1.6. Contributor (Android) App input error handling 
 
 Modified `onMakeDonationButtonClick()` method in MakeDonationActivity class of contributor App to handle invalid donation amounts, including zero and negative values. I first parse the input string to a long datatype, if it’s successful then check whether it is a positive number. If it's not a positive number or a valid value, I use `Toast.makeText()` to display a warning message to the user and clear the input field to prompt them to re-enter a valid value. This prevents any donation with zero or negative amount from being processed.
@@ -50,9 +51,9 @@ data.get("creditCardExpiryYear")).toString();
 
 # 4. Team Contributions
 
-- **Task 1.1.** *Ruxue Yan*
-- **Task 1.2.** *Clara Zhang*
-- **Task 1.3.** *Huifang Ye*
-- **Task 1.4.** *Clara Zhang*
-- **Task 1.5.** *Huifang Ye*
-- **Task 1.6.** *Ruxue Yan*
+- **Task 2.1.** *Huifang Ye*
+- **Task 2.2.** *Ruxue Yan*
+- **Task 2.3.** *Clara Zhang*
+- **Task 2.4.** *Huifang Ye*
+- **Task 2.7.** *Clara Zhang*
+- **Task 2.11.** *Ruxue Yan*
