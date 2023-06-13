@@ -1,5 +1,3 @@
-//package org;
-
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -17,9 +15,6 @@ public class DataManager {
 	private Map<String, String> contributorNameCache;
 
 	public DataManager(WebClient client) {
-//		if (client == null) {
-//			throw new IllegalArgumentException("WebClient cannot be null");
-//		}
 		this.client = client;
 		this.contributorNameCache = new HashMap<>();
 	}

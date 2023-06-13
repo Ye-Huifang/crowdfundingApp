@@ -120,7 +120,7 @@ public class UserInterface {
 			System.out.println("Total donation amount: $" + totalDonations + " (" + percentage + "% of target)");
 
 			System.out.println("Enter 0 to delete this fund");
-			System.out.println("Press the Enter key to go back to the listing of funds");
+			System.out.println("Enter 1 to go back to the listing of funds");
 			int option = in.nextInt();
 			in.nextLine();
 
