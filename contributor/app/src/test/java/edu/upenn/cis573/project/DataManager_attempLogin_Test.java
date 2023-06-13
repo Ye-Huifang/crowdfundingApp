@@ -15,7 +15,7 @@ public class DataManager_attempLogin_Test {
             public String makeRequest(String resource, Map<String, Object> queryParams) {
             	if (resource.equals("/findContributorByLoginAndPassword")) {
             		return "{\"status\":\"success\",\"data\":{\"_id\":\"12345\",\"name\":\"ConName\",\"email\":\"test@123.com\",\"creditCardNumber\":\"245236234\", \"creditCardCVV\": \"932\", "
-                    		+ "\"creditCardExpiryMonth\":\"3\", \"creditCardExpiryYear\":\"2022\",\"creditCardPostCode\":\"25342\",\"donations\":[{\"fund\":\"fund1\",\"date\":\"2023-01-01\",\"amount\" : 214}]}}";
+                    		+ "\"creditCardExpiryMonth\":3, \"creditCardExpiryYear\":2022,\"creditCardPostCode\":\"25342\",\"donations\":[{\"fund\":\"fund1\",\"date\":\"2023-01-01\",\"amount\" : 214}]}}";
             	} else if (resource.equals("/findFundNameById")) {
             		return "{\"status\":\"success\",\"data\":\"fund1\"}";
             	} else {
