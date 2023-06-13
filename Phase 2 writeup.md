@@ -28,7 +28,7 @@ Then we modified the logic for retrieving the name of the fund in attemptLogin m
 This task consists of four parts, adding a `deleteFund` function in DataManager, displaying and providing navigation in `UserInterface`, writing Junit test cases and debugging, and implementing defensive programming. In the `DataManager` I added the deleteFund function which corresponds to the /deleteFund route, then in the UserInterface I added a deletedFund function as well which prompts the user to confirm for the deletion. In the `displayFund` method in UserInterface I also added prompts for users to choose the option of deleting the current fund. As for testing and defensive programming, I added a `DataManager_deletedFund_Test` class which resembles the `DataManagerRobustnessTest` class and passed all the test cases while gaining 100% coverage rate on the deleteFund method.
 
 ## Task 2.11. Unattempted Additional Task from Phase 1 (Task 1.8)
-To complete task 1.8 Organization App login error handling, I modified the attemptLogin method in DataManager to throw an IllegalStateException if an error occurs while communicating with the server. For the main method in UserInterface.js, if that exception is caught, it displays the error message "Error in communicating with server".
+To complete task 1.8 Organization App login error handling, I modified the attemptLogin method in DataManager to throw an IllegalStateException if an error occurs while communicating with the server. For the main method in UserInterface.js, it displays the error message "Error in communicating with server" if "Cannot connect to server" is caught, and still shows “Login fails” if the username/password combination is incorrect.
 
 # 3. Bugs Found and Fixed
 

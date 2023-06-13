@@ -148,7 +148,11 @@ public class UserInterface {
 				ui.start();
 			}
 		} catch (IllegalStateException e) {
-			System.out.println("Error in communicating with the server. Please try again.");
+			if (e.getMessage().equals("Cannot connect to server")) {
+				System.out.println("Error in communicating with the server. Please try again.");
+			} else {
+				System.out.println("Login failed.");
+			}
 			in.nextLine();
 			main(args);
 		}
