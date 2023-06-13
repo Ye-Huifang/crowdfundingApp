@@ -9,10 +9,9 @@
 ## Task 2.1. Organization App caching
 We first added a new Map instance variable `contributorNameCache` in the `DataManager` class. This Map was implemented as a HashMap to store the name of a contributor against their ID once fetched from the RESTful API. The cache was keyed by the contributor's ID and the value was the contributor's name. Then we also initialized `contributorNameCache` in the `DataManager` constructor. Finally, we changed the way the `attemptLogin` method retrieved the contributor's name. We first checked if `contributorNameCache` already contained the name for the current contributor's ID. If it did, we retrieved the contributor's name from the cache. If not, we called the `getContributorName` method to fetch the name from the API, and then stored this value in `contributorNameCache` for future reference.
 
-## Task 1.2. Organization (Java) App debugging
-
-When running the DataManager_attemptLogin_Test.java, the testAttemptLoginSuccess and testAttemptLoginwithFundandDonation didn’t pass. Both of them encountered error on the line `assertEquals("OrgDescription", org.getDescription());` So I checked on the DataManager’s attemptLogin and especially looked for the part where we’re trying to get the description from `/findOrgByLoginAndPassword` request. And on
-the line 41 `String description = (String)data.get("descrption");` the key was written as `descrption` which doesn’t align with the string response returned from WebClient. Thus the datamanager was unable to locate the description info. After changing the name, all test cases passed.
+## Task 2.2. Organization App defensive programming
+According to the DataManagerRobustnessTest.js, I updated DataManager.js to include error handling and exception handling for WebClient, attemptLogin, getContributorName and createFund. It handles cases where the WebClient is null, login or password is null or empty, the WebClient fails to connect to the server, the response from the server is null, the response from the server indicates an error, or the response from the server is malformed JSON.
+For UserInterface.js, it displays meaningful error messages when encountering difficulties in accessing data through the DataManager.js. The user is informed about the error and given the option to retry the operation that caused the error. The modifications ensure that the user is provided with clear feedback and can take appropriate action when errors occur, improving the overall usability of the user interface.
 
 ## Task 2.3. Organization App aggregate donations by contributor
 
@@ -28,28 +27,11 @@ Then we modified the logic for retrieving the name of the fund in attemptLogin m
 
 This task consists of four parts, adding a `deleteFund` function in DataManager, displaying and providing navigation in `UserInterface`, writing Junit test cases and debugging, and implementing defensive programming. In the `DataManager` I added the deleteFund function which corresponds to the /deleteFund route, then in the UserInterface I added a deletedFund function as well which prompts the user to confirm for the deletion. In the `displayFund` method in UserInterface I also added prompts for users to choose the option of deleting the current fund. As for testing and defensive programming, I added a `DataManager_deletedFund_Test` class which resembles the `DataManagerRobustnessTest` class and passed all the test cases while gaining 100% coverage rate on the deleteFund method.
 
-## Task 1.6. Contributor (Android) App input error handling 
-
-Modified `onMakeDonationButtonClick()` method in MakeDonationActivity class of contributor App to handle invalid donation amounts, including zero and negative values. I first parse the input string to a long datatype, if it’s successful then check whether it is a positive number. If it's not a positive number or a valid value, I use `Toast.makeText()` to display a warning message to the user and clear the input field to prompt them to re-enter a valid value. This prevents any donation with zero or negative amount from being processed.
+## Task 2.11. Unattempted Additional Task from Phase 1 (Task 1.8)
+To complete task 1.8 Organization App login error handling, I modified the attemptLogin method in DataManager to throw an IllegalStateException if an error occurs while communicating with the server. For the main method in UserInterface.js, if that exception is caught, it displays the error message "Error in communicating with server".
 
 # 3. Bugs Found and Fixed
 
-## Task 1.2. Organization (Java) App debugging
-Fixed the misspelling of “description” to successfully retrieve the description information.
-String description = (String)data.get(“descrption”);
-`String description = (String)data.get("descrption");`
-
-## Task 1.4. Contributor (Android) App testing and debugging
-1. Switched the position of `creditCardExpiryMonth` and `creditCardExpiryYear` to comply with the order in Contributor constructor paraters. 
-```
-Contributor contributor = new Contributor(id, name, email, creditCardNumber, creditCardCVV, creditCardExpiryYear, creditCardExpiryMonth, creditCardPostCode);
-```
-2. The input should already be string instead of integer due to the datatype set in contributor class. So i deleted the (Integer) and toString()
-```
-String creditCardExpiryMonth = ((Integer)data.get("creditCardExpiryMonth")).toString();
-String creditCardExpiryYear = ((Integer)
-data.get("creditCardExpiryYear")).toString();
-```
 
 # 4. Team Contributions
 
