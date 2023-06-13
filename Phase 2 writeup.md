@@ -7,7 +7,7 @@
 # 2. Task Descriptions
 
 ## Task 2.1. Organization App caching
-We first Add a new Map instance variable `contributorNameCache` in the `DataManager` class. This Map was implemented as a HashMap to store the name of a contributor against their ID once fetched from the RESTful API. The cache is keyed by the contributor's ID and the value is the contributor's name. Then we also initialized `contributorNameCache` in the `DataManager` constructor. Finally, we changed the way the `attemptLogin` method retrieved the contributor's name. We first checked if `contributorNameCache` already contains the name for the current contributor's ID. If it did, we retrieve the contributor's name from the cache. If not, we call the `getContributorName` method to fetch the name from the API, and then store this value in `contributorNameCache` for future reference.
+We first add a new Map instance variable `contributorNameCache` in the `DataManager` class. This Map was implemented as a HashMap to store the name of a contributor against their ID once fetched from the RESTful API. The cache is keyed by the contributor's ID and the value is the contributor's name. Then we also initialized `contributorNameCache` in the `DataManager` constructor. Finally, we changed the way the `attemptLogin` method retrieved the contributor's name. We first checked if `contributorNameCache` already contains the name for the current contributor's ID. If it did, we retrieve the contributor's name from the cache. If not, we call the `getContributorName` method to fetch the name from the API, and then store this value in `contributorNameCache` for future reference.
 
 ## Task 1.2. Organization (Java) App debugging
 
