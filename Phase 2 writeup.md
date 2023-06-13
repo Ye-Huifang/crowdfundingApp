@@ -6,9 +6,9 @@
 
 # 2. Task Descriptions
 
-## Task 1.1. Organization (Java) App testing
+## Task 2.1. Organization App caching
+We first Add a new Map instance variable `contributorNameCache` in the `DataManager` class. This Map was implemented as a HashMap to store the name of a contributor against their ID once fetched from the RESTful API. The cache is keyed by the contributor's ID and the value is the contributor's name. Then we also initialized `contributorNameCache` in the `DataManager` constructor. Finally, we changed the way the `attemptLogin` method retrieved the contributor's name. We first checked if `contributorNameCache` already contains the name for the current contributor's ID. If it did, we retrieve the contributor's name from the cache. If not, we call the `getContributorName` method to fetch the name from the API, and then store this value in `contributorNameCache` for future reference.
 
-Add `testFailedCreation` and `testCreateFundInvalidJson` unit tests in the existing `DataManager_createFund_Test` to cover the `createFund` method in the `DataManager` class, checking both unsuccessful and invalid fund creation scenarios. Create a new class `DataManager_getContributorName_Test` with `testgetContributorNameSuccess`, `testgetContributorNameFailure` and `testgetContributorNameInvalidJson` unit tests, which test successful, unsuccessful and invalid name retrieval scenarios respectively. Create a new class `DataManager_attemptLogin_Test` with `testAttemptLoginSuccess`, `testAttemptLoginFailure`, `testAttemptLoginWithFundAndDonation` and `testAttemptLoginInvalidJson` unit tests to test the attemptLogin method in the `DataManager` class. I mocked the data returned from the `WebClient.makeRequest` method to simulate different server responses. These three test classes together achieve 100% statement coverage in `DataManager`. 
 ## Task 1.2. Organization (Java) App debugging
 
 When running the DataManager_attemptLogin_Test.java, the testAttemptLoginSuccess and testAttemptLoginwithFundandDonation didn’t pass. Both of them encountered error on the line `assertEquals("OrgDescription", org.getDescription());` So I checked on the DataManager’s attemptLogin and especially looked for the part where we’re trying to get the description from `/findOrgByLoginAndPassword` request. And on
@@ -18,9 +18,11 @@ the line 41 `String description = (String)data.get("descrption");` the key was w
 
 In the displayFund() method of the userinterface class, I added a treemap with a customized comparable that helps sort the aggregate donations based on the descending order of the donation amount. The treemap uses contributor name as key, and a list as values, the first element of the list is the number of times the contributor has donated, and the second element of the list is the total amount of their donations. After having everything sorted and stored in a treemap, I then iterate through the treemap and retrieve every entry and print them on the console. 
 
-## Task 1.4. Contributor (Android) App testing and debugging
+## Task 2.4. Contributor App caching
 
-In the test section, I created 4 junit test classes for each method inside `DataManager` class. The attempt login test cases mainly covers 4 scenarios, for example when the login is successful and all fields are correctly read but there is single donation, the case similar to the previous one but have multiple donations, when the login fails, and when the response is not in json format. The `DataManager_getFundName_Test` consists of three test cases, covered accordingly by testSuccess, testFailure, and testException. This test gets the fund name info from `/findFundById` payload. The `DataManager_getAllOrganizations_Test` mainly tests the `getAllOrganization` method which returns a list of Organizations. The response contains a list of Organizations and within each Organization there is a list of funds.
+We first introduced a new variable `fundNameCache`, which is a HashMap object. The cache is keyed by the fund's ID and the value is the name of the fund. The variable was created to store the name of the fund once it is fetched from the REST API, so that the same data didn't have to be fetched again and again.
+
+Then we modified the logic for retrieving the name of the fund in attemptLogin method. We first checked whether the `fundNameCache` already contained the name for the current fund's ID. If it did, we retrieved the fund name from the cache. If it didn't, we call the `getFundName` method to get the name from the API, and subsequently stored this value in `fundNameCache` for future use.
 
 ## Task 2.7. Organization App delete fund
 
