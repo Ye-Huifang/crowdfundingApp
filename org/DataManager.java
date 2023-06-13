@@ -1,4 +1,4 @@
-package org;
+//package org;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -17,16 +17,16 @@ public class DataManager {
 	private Map<String, String> contributorNameCache;
 
 	public DataManager(WebClient client) {
-		if (client == null) {
-			throw new IllegalArgumentException("WebClient cannot be null");
-		}
+//		if (client == null) {
+//			throw new IllegalArgumentException("WebClient cannot be null");
+//		}
 		this.client = client;
 		this.contributorNameCache = new HashMap<>();
 	}
 
 	public Organization attemptLogin(String login, String password) {
 		if (client == null) {
-			throw new IllegalArgumentException("WebClient cannot be null");
+			throw new IllegalStateException("WebClient cannot be null");
 		}
 		if (login == null || password == null) {
 			throw new IllegalArgumentException("Login and password cannot be null");
@@ -109,7 +109,7 @@ public class DataManager {
 
 	public String getContributorName(String id) {
 		if (client == null) {
-			throw new IllegalArgumentException("WebClient cannot be null");
+			throw new IllegalStateException("WebClient cannot be null");
 		}
 		if (id == null || id.isEmpty()) {
 			throw new IllegalArgumentException("id cannot be null or empty");
@@ -151,7 +151,7 @@ public class DataManager {
 
 	public Fund createFund(String orgId, String name, String description, long target) {
 		if (client == null) {
-			throw new IllegalArgumentException("WebClient cannot be null");
+			throw new IllegalStateException("WebClient cannot be null");
 		}
 		if (orgId == null || orgId.isEmpty() || name == null || name.isEmpty() || description == null
 				|| description.isEmpty()) {
@@ -207,7 +207,9 @@ public class DataManager {
 			Map<String, Object> map = new HashMap<>();
 			map.put("id", fundId);
 			String response = client.makeRequest("/deleteFund", map);
-
+			if (response == null) {
+				throw new IllegalStateException();
+			}
 			JSONParser parser = new JSONParser();
 			JSONObject json = (JSONObject) parser.parse(response);
 			String status = (String) json.get("status");
@@ -219,7 +221,7 @@ public class DataManager {
 				long target = (Long) fund.get("target");
 				return new Fund(fundId, name, description, target);
 			} else {
-				return null;
+				throw new IllegalStateException();
 			}
 		} catch (ParseException e) {
 			throw new IllegalStateException("Malformed JSON received");
