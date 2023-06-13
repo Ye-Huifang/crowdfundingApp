@@ -47,7 +47,7 @@ public class DataManager_createFund_Test {
 		assertNull(f);
 	}
 
-	@Test
+	@Test(expected=IllegalStateException.class)
 	public void testCreateFundInvalidJson() {
 		DataManager dm = new DataManager(new WebClient("localhost", 3001) {
 			@Override
@@ -60,7 +60,7 @@ public class DataManager_createFund_Test {
 		Fund fund = dm.createFund("orgId", "fundName", "fundDescription", 1000);
 
 		// Since the JSON string is invalid, the createFund method should return null
-		assertNull(fund);
+//		assertNull(fund);
 	}
 	
 

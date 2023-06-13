@@ -17,9 +17,6 @@ public class DataManager {
 	private Map<String, String> contributorNameCache;
 
 	public DataManager(WebClient client) {
-//		if (client == null) {
-//			throw new IllegalArgumentException("WebClient cannot be null");
-//		}
 		this.client = client;
 		this.contributorNameCache = new HashMap<>();
 	}
@@ -37,7 +34,7 @@ public class DataManager {
 			map.put("login", login);
 			map.put("password", password);
 			String response = client.makeRequest("/findOrgByLoginAndPassword", map);
-
+			System.out.println(response);
 			if (response == null) {
 				throw new IllegalStateException("Cannot connect to server");
 			}
@@ -50,10 +47,6 @@ public class DataManager {
 			JSONObject json = (JSONObject) obj;
 
 			String status = (String) json.get("status");
-			if (status.equals("error")) {
-				String errorMessage = (String) json.get("error");
-				throw new IllegalStateException(errorMessage);
-			}
 
 			if (status.equals("success")) {
 				JSONObject data = (JSONObject) json.get("data");
@@ -98,8 +91,8 @@ public class DataManager {
 					org.addFund(newFund);
 				}
 				return org;
-			} else {
-				return null;
+			} else { 
+				throw new IllegalStateException("Malformed JSON received");
 			}
 		} catch (ParseException e) {
 			throw new IllegalStateException("Malformed JSON received");
