@@ -33,8 +33,7 @@ public class UserInterface {
 			in.nextLine();
 			if (option == 0) {
 				createFund();
-			}
-			else {
+			} else {
 				displayFund(option);
 			}
 		}
@@ -72,8 +71,7 @@ public class UserInterface {
 				Fund removeFund = dataManager.deleteFund(fund.getId());
 				List<Fund> newlist = org.getFunds();
 				newlist.remove(fundNumber - 1);
-			}
-			else {
+			} else {
 				displayFund(fundNumber);
 			}
 		} catch (Exception e) {
@@ -146,21 +144,21 @@ public class UserInterface {
 
 
 	public static void main(String[] args) {
-
 		DataManager ds = new DataManager(new WebClient("localhost", 3001));
 
 		String login = args[0];
 		String password = args[1];
 
+		try {Organization org = ds.attemptLogin(login, password);
 
-		Organization org = ds.attemptLogin(login, password);
-
-		if (org == null) {
-			System.out.println("Login failed.");
-		}
-		else {
-			UserInterface ui = new UserInterface(ds, org);
-			ui.start();
+			if (org == null) {
+				System.out.println("Login failed.");
+			} else {
+				UserInterface ui = new UserInterface(ds, org);
+				ui.start();
+			}
+		} catch (IllegalStateException e) {
+			System.out.println("Error in communicating with server");
 		}
 	}
 }

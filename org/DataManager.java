@@ -43,7 +43,6 @@ public class DataManager {
 			JSONObject json = (JSONObject) parser.parse(response);
 			String status = (String) json.get("status");
 
-
 			if (status.equals("success")) {
 				JSONObject data = (JSONObject) json.get("data");
 				String fundId = (String) data.get("_id");
@@ -88,7 +87,9 @@ public class DataManager {
 
 				}
 				return org;
-			} else return null;
+			} else {
+			throw new IllegalStateException("Error in communicating with server");
+			}
 		} catch (ParseException e) {
 			throw new IllegalStateException("Malformed JSON received");
 		}
