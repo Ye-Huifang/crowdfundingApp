@@ -23,7 +23,7 @@ public class DataManager_attemptLogin_Test {
     }
 
 
-    @Test
+    @Test(expected=IllegalStateException.class)
     public void testAttemptLoginFailure() {
         DataManager dm = new DataManager(new WebClient("localhost", 3001) {
             @Override
@@ -33,7 +33,7 @@ public class DataManager_attemptLogin_Test {
         });
 
         Organization org = dm.attemptLogin("test", "password");
-        assertNull(org);
+//        assertNull(org);
     }
 
     @Test
@@ -97,7 +97,7 @@ public class DataManager_attemptLogin_Test {
         assertEquals("2023-01-02", donation_2_2.getDate());
     }
 
-    @Test
+    @Test(expected=IllegalStateException.class)
     public void testAttemptLoginInvalidJson() {
         DataManager dm = new DataManager(new WebClient("localhost", 3001) {
             @Override
@@ -109,7 +109,7 @@ public class DataManager_attemptLogin_Test {
 
         // Since the JSON string is invalid, the attemptLogin method should throw an exception
         Organization org = dm.attemptLogin("test", "password");
-        assertNull(org);
+//        assertNull(org);
     }
 
 }
