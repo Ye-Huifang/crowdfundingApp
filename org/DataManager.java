@@ -26,7 +26,7 @@ public class DataManager {
 		if (client == null) {
 			throw new IllegalArgumentException("WebClient cannot be null");
 		}
-		if (login == null || password == null ) {
+		if (login == null || password == null) {
 			throw new IllegalArgumentException("Login and password cannot be null");
 		}
 
@@ -35,10 +35,23 @@ public class DataManager {
 			map.put("login", login);
 			map.put("password", password);
 			String response = client.makeRequest("/findOrgByLoginAndPassword", map);
-			System.out.println(response);
+
+			if (response == null) {
+				throw new IllegalStateException("Cannot connect to server");
+			}
+
 			JSONParser parser = new JSONParser();
-			JSONObject json = (JSONObject) parser.parse(response);
+			Object obj = parser.parse(response);
+			if (!(obj instanceof JSONObject)) {
+				throw new IllegalStateException("Malformed JSON received");
+			}
+			JSONObject json = (JSONObject) obj;
+
 			String status = (String) json.get("status");
+			if (status.equals("error")) {
+				String errorMessage = (String) json.get("error");
+				throw new IllegalStateException(errorMessage);
+			}
 
 			if (status.equals("success")) {
 				JSONObject data = (JSONObject) json.get("data");
@@ -91,6 +104,7 @@ public class DataManager {
 		}
 	}
 
+
 	public String getContributorName(String id) {
 		if (client == null) {
 			throw new IllegalArgumentException("WebClient cannot be null");
@@ -103,13 +117,23 @@ public class DataManager {
 			Map<String, Object> map = new HashMap<>();
 			map.put("id", id);
 			String response = client.makeRequest("/findContributorNameById", map);
+
 			if (response == null) {
 				throw new IllegalStateException("Cannot connect to server");
 			}
 
 			JSONParser parser = new JSONParser();
-			JSONObject json = (JSONObject) parser.parse(response);
+			Object obj = parser.parse(response);
+			if (!(obj instanceof JSONObject)) {
+				throw new IllegalStateException("Malformed JSON received");
+			}
+			JSONObject json = (JSONObject) obj;
+
 			String status = (String) json.get("status");
+			if (status.equals("error")) {
+				String errorMessage = (String) json.get("error");
+				throw new IllegalStateException(errorMessage);
+			}
 
 			if (status.equals("success")) {
 				String name = (String) json.get("data");
@@ -121,6 +145,7 @@ public class DataManager {
 			throw new IllegalStateException("Malformed JSON received");
 		}
 	}
+
 
 	public Fund createFund(String orgId, String name, String description, long target) {
 		if (client == null) {
@@ -139,8 +164,17 @@ public class DataManager {
 			map.put("target", target);
 			String response = client.makeRequest("/createFund", map);
 
+			if (response == null) {
+				throw new IllegalStateException("WebClient returned null response");
+			}
+
 			JSONParser parser = new JSONParser();
-			JSONObject json = (JSONObject) parser.parse(response);
+			Object obj = parser.parse(response);
+			if (!(obj instanceof JSONObject)) {
+				throw new IllegalStateException("Malformed JSON received");
+			}
+			JSONObject json = (JSONObject) obj;
+
 			String status = (String) json.get("status");
 			if (status.equals("error")) {
 				String errorMessage = (String) json.get("error");
@@ -158,6 +192,7 @@ public class DataManager {
 			throw new IllegalStateException("Malformed JSON received");
 		}
 	}
+
 
 	public Fund deleteFund(String fundId) {
 		if (client == null) {
