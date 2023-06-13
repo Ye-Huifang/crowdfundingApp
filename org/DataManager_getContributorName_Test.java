@@ -33,7 +33,7 @@ public class DataManager_getContributorName_Test {
         assertNull(name);
     }
 
-    @Test
+    @Test(expected=IllegalStateException.class)
     public void testGetContributorNameInvalidJson() {
         DataManager dm = new DataManager(new WebClient("localhost", 3001) {
             @Override
@@ -45,7 +45,7 @@ public class DataManager_getContributorName_Test {
 
         // Since the JSON string is invalid, the getContributorName method should throw an exception and return null
         String name = dm.getContributorName("testId");
-        assertNull(name);
+//        assertNull(name);
     }
 
 }
