@@ -1,5 +1,4 @@
 import java.util.HashMap;
-
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -16,18 +15,13 @@ public class DataManager {
 	private Map<String, String> contributorNameCache;
 
 	public DataManager(WebClient client) {
-		if(client == null) {
+		if (client == null) {
 			throw new IllegalArgumentException("WebClient cannot be null");
 		}
 		this.client = client;
 		this.contributorNameCache = new HashMap<>();
 	}
- 
-	/**
-	 * Attempt to log the user into an Organization account using the login and password.
-	 * This method uses the /findOrgByLoginAndPassword endpoint in the API
-	 * @return an Organization object if successful; null if unsuccessful
-	 */ 
+
 	public Organization attemptLogin(String login, String password) {
 		if (login == null || login.isEmpty() || password == null || password.isEmpty()) {
 			throw new IllegalArgumentException("Login and password cannot be null or empty");
@@ -51,7 +45,7 @@ public class DataManager {
 				Organization org = new Organization(fundId, name, description);
 
 				JSONArray funds = (JSONArray) data.get("funds");
-				Iterator it = funds.iterator();
+				Iterator<?> it = funds.iterator();
 				while (it.hasNext()) {
 					JSONObject fund = (JSONObject) it.next();
 					fundId = (String) fund.get("_id");
@@ -63,7 +57,7 @@ public class DataManager {
 
 					JSONArray donations = (JSONArray) fund.get("donations");
 					List<Donation> donationList = new LinkedList<>();
-					Iterator it2 = donations.iterator();
+					Iterator<?> it2 = donations.iterator();
 					while (it2.hasNext()) {
 						JSONObject donation = (JSONObject) it2.next();
 						String contributorId = (String) donation.get("contributor");
@@ -84,22 +78,16 @@ public class DataManager {
 					newFund.setDonations(donationList);
 
 					org.addFund(newFund);
-
 				}
 				return org;
 			} else {
-			throw new IllegalStateException("Error in communicating with server");
+				return null;
 			}
 		} catch (ParseException e) {
 			throw new IllegalStateException("Malformed JSON received");
 		}
 	}
 
-	/**
-	 * Look up the name of the contributor with the specified ID.
-	 * This method uses the /findContributorNameById endpoint in the API.
-	 * @return the name of the contributor on success; null if no contributor is found
-	 */
 	public String getContributorName(String id) {
 		if (id == null || id.isEmpty()) {
 			throw new IllegalArgumentException("id cannot be null or empty");
@@ -112,25 +100,23 @@ public class DataManager {
 
 			JSONParser parser = new JSONParser();
 			JSONObject json = (JSONObject) parser.parse(response);
-			String status = (String)json.get("status");
+			String status = (String) json.get("status");
 
 			if (status.equals("success")) {
-				String name = (String)json.get("data");
+				String name = (String) json.get("data");
 				return name;
+			} else {
+				return null;
 			}
-			else return null;
 		} catch (ParseException e) {
 			throw new IllegalStateException("Malformed JSON received");
 		}
 	}
 
-	/**
-	 * This method creates a new fund in the database using the /createFund endpoint in the API
-	 * @return a new Fund object if successful; null if unsuccessful
-	 */
 	public Fund createFund(String orgId, String name, String description, long target) {
-		if (orgId == null || orgId.isEmpty() || name == null || name.isEmpty() || description == null || description.isEmpty()) {
-			throw new IllegalArgumentException("orgId, name or description cannot be null or empty");
+		if (orgId == null || orgId.isEmpty() || name == null || name.isEmpty() || description == null
+				|| description.isEmpty()) {
+			throw new IllegalArgumentException("orgId, name, or description cannot be null or empty");
 		}
 
 		try {
@@ -143,19 +129,20 @@ public class DataManager {
 
 			JSONParser parser = new JSONParser();
 			JSONObject json = (JSONObject) parser.parse(response);
-			String status = (String)json.get("status");
+			String status = (String) json.get("status");
 
 			if (status.equals("success")) {
-				JSONObject fund = (JSONObject)json.get("data");
-				String fundId = (String)fund.get("_id");
+				JSONObject fund = (JSONObject) json.get("data");
+				String fundId = (String) fund.get("_id");
 				return new Fund(fundId, name, description, target);
+			} else {
+				return null;
 			}
-			else return null;
 		} catch (ParseException e) {
 			throw new IllegalStateException("Malformed JSON received");
 		}
 	}
-	
+
 	public Fund deleteFund(String fundId) {
 		if (client == null) {
 			throw new IllegalStateException();
@@ -164,32 +151,25 @@ public class DataManager {
 			throw new IllegalArgumentException();
 		}
 		try {
-
 			Map<String, Object> map = new HashMap<>();
 			map.put("id", fundId);
 			String response = client.makeRequest("/deleteFund", map);
-			if (response == null) {
-				throw new IllegalStateException();
-			}
+
 			JSONParser parser = new JSONParser();
 			JSONObject json = (JSONObject) parser.parse(response);
-			
-			String status = (String)json.get("status");
+			String status = (String) json.get("status");
 
 			if (status.equals("success")) {
-				JSONObject fund = (JSONObject)json.get("data");
-				String name = (String)fund.get("name");
-				String description = (String)fund.get("description");
-				long target = (Long)fund.get("target");
+				JSONObject fund = (JSONObject) json.get("data");
+				String name = (String) fund.get("name");
+				String description = (String) fund.get("description");
+				long target = (Long) fund.get("target");
 				return new Fund(fundId, name, description, target);
+			} else {
+				return null;
 			}
-			else throw new IllegalStateException();
-
+		} catch (ParseException e) {
+			throw new IllegalStateException("Malformed JSON received");
 		}
-		catch (Exception e) {
-			throw new IllegalStateException();
-//			e.printStackTrace();
-//			return null;
-		}	
 	}
 }
