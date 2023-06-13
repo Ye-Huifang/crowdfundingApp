@@ -89,7 +89,10 @@ public class DataManager {
 					org.addFund(newFund);
 				}
 				return org;
-			} else { 
+			} else if (status.equals("error")) {
+				String errorMessage = (String) json.get("error");
+				throw new IllegalStateException(errorMessage);
+			} else {
 				throw new IllegalStateException("Malformed JSON received");
 			}
 		} catch (ParseException e) {
