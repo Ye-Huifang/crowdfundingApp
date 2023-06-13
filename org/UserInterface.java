@@ -2,10 +2,9 @@ import java.util.*;
 
 public class UserInterface {
 
-
 	private DataManager dataManager;
 	private Organization org;
-	private Scanner in = new Scanner(System.in);
+	private static Scanner in = new Scanner(System.in);
 
 	public UserInterface(DataManager dataManager, Organization org) {
 		this.dataManager = dataManager;
@@ -13,17 +12,13 @@ public class UserInterface {
 	}
 
 	public void start() {
-
 		while (true) {
 			System.out.println("\n\n");
 			if (org.getFunds().size() > 0) {
 				System.out.println("There are " + org.getFunds().size() + " funds in this organization:");
-
 				int count = 1;
 				for (Fund f : org.getFunds()) {
-
 					System.out.println(count + ": " + f.getName());
-
 					count++;
 				}
 				System.out.println("Enter the fund number to see more information.");
@@ -37,17 +32,14 @@ public class UserInterface {
 				displayFund(option);
 			}
 		}
-
 	}
 
 	public void createFund() {
 		try {
 			System.out.print("Enter the fund name: ");
 			String name = in.nextLine().trim();
-
 			System.out.print("Enter the fund description: ");
 			String description = in.nextLine().trim();
-
 			System.out.print("Enter the fund target: ");
 			long target = in.nextInt();
 			in.nextLine();
@@ -56,8 +48,9 @@ public class UserInterface {
 			org.getFunds().add(fund);
 		} catch (Exception e) {
 			System.out.println("An error occurred while creating the fund. Please try again.");
+			in.nextLine();
+			createFund();
 		}
-
 	}
 
 	public void deleteFund(int fundNumber) {
@@ -76,11 +69,10 @@ public class UserInterface {
 			}
 		} catch (Exception e) {
 			System.out.println("An error occurred while deleting the fund. Please try again.");
+			in.nextLine();
 			displayFund(fundNumber);
 		}
-
 	}
-
 
 	public void displayFund(int fundNumber) {
 		try {
@@ -130,27 +122,25 @@ public class UserInterface {
 			System.out.println("Enter 0 to delete this fund");
 			System.out.println("Press the Enter key to go back to the listing of funds");
 			int option = in.nextInt();
+			in.nextLine();
 
 			if (option == 0) {
 				deleteFund(fundNumber);
-			} else {
-				in.nextLine();
 			}
 		} catch (Exception e) {
 			System.out.println("An error occurred while displaying the fund information. Please try again.");
+			in.nextLine();
+			displayFund(fundNumber);
 		}
-
 	}
-
 
 	public static void main(String[] args) {
 		DataManager ds = new DataManager(new WebClient("localhost", 3001));
-
 		String login = args[0];
 		String password = args[1];
 
-		try {Organization org = ds.attemptLogin(login, password);
-
+		try {
+			Organization org = ds.attemptLogin(login, password);
 			if (org == null) {
 				System.out.println("Login failed.");
 			} else {
@@ -158,7 +148,9 @@ public class UserInterface {
 				ui.start();
 			}
 		} catch (IllegalStateException e) {
-			System.out.println("Error in communicating with server");
+			System.out.println("Error in communicating with the server. Please try again.");
+			in.nextLine();
+			main(args);
 		}
 	}
 }
