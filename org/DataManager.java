@@ -23,8 +23,11 @@ public class DataManager {
 	}
 
 	public Organization attemptLogin(String login, String password) {
-		if (login == null || login.isEmpty() || password == null || password.isEmpty()) {
-			throw new IllegalArgumentException("Login and password cannot be null or empty");
+		if (client == null) {
+			throw new IllegalArgumentException("WebClient cannot be null");
+		}
+		if (login == null || password == null ) {
+			throw new IllegalArgumentException("Login and password cannot be null");
 		}
 
 		try {
@@ -89,6 +92,9 @@ public class DataManager {
 	}
 
 	public String getContributorName(String id) {
+		if (client == null) {
+			throw new IllegalArgumentException("WebClient cannot be null");
+		}
 		if (id == null || id.isEmpty()) {
 			throw new IllegalArgumentException("id cannot be null or empty");
 		}
@@ -97,6 +103,9 @@ public class DataManager {
 			Map<String, Object> map = new HashMap<>();
 			map.put("id", id);
 			String response = client.makeRequest("/findContributorNameById", map);
+			if (response == null) {
+				throw new IllegalStateException("Cannot connect to server");
+			}
 
 			JSONParser parser = new JSONParser();
 			JSONObject json = (JSONObject) parser.parse(response);
@@ -114,6 +123,9 @@ public class DataManager {
 	}
 
 	public Fund createFund(String orgId, String name, String description, long target) {
+		if (client == null) {
+			throw new IllegalArgumentException("WebClient cannot be null");
+		}
 		if (orgId == null || orgId.isEmpty() || name == null || name.isEmpty() || description == null
 				|| description.isEmpty()) {
 			throw new IllegalArgumentException("orgId, name, or description cannot be null or empty");
@@ -130,6 +142,10 @@ public class DataManager {
 			JSONParser parser = new JSONParser();
 			JSONObject json = (JSONObject) parser.parse(response);
 			String status = (String) json.get("status");
+			if (status.equals("error")) {
+				String errorMessage = (String) json.get("error");
+				throw new IllegalStateException(errorMessage);
+			}
 
 			if (status.equals("success")) {
 				JSONObject fund = (JSONObject) json.get("data");
