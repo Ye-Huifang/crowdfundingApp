@@ -117,4 +117,21 @@ public class DataManager_createFund_Test {
 		dm.createFund("12345", "new fund", "this is the new fund", 10000);
 	}
 
+	@Test
+	public void testCreateFundJsonNotAnObject() {
+		DataManager dm = new DataManager(new WebClient("localhost", 3001) {
+			@Override
+			public String makeRequest(String resource, Map<String, Object> queryParams) {
+				return "[\"This is a JSON array not an object\"]";
+			}
+		});
+
+		try {
+			dm.createFund("12345", "new fund", "this is the new fund", 10000);
+			fail("Expected an IllegalStateException to be thrown");
+		} catch (IllegalStateException e) {
+			assertEquals("Malformed JSON received", e.getMessage());
+		}
+	}
+
 }

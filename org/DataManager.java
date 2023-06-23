@@ -221,4 +221,49 @@ public class DataManager {
 			throw new IllegalStateException("Malformed JSON received");
 		}
 	}
+
+	public Organization updateOrganizationInfo(String orgId, String orgName, String orgDescription) {
+		if (client == null) {
+			throw new IllegalStateException("WebClient cannot be null");
+		}
+		if (orgId == null || orgId.isEmpty()) {
+			throw new IllegalArgumentException("orgId cannot be null or empty");
+		}
+
+		try {
+			Map<String, Object> map = new HashMap<>();
+			map.put("orgId", orgId);
+			map.put("name", orgName);
+			map.put("description", orgDescription);
+			String response = client.makeRequest("/updateOrg", map);
+
+			if (response == null) {
+				throw new IllegalStateException("Cannot connect to server");
+			}
+
+			JSONParser parser = new JSONParser();
+			Object obj = parser.parse(response);
+			if (!(obj instanceof JSONObject)) {
+				throw new IllegalStateException("Malformed JSON received");
+			}
+			JSONObject json = (JSONObject) obj;
+
+			String status = (String) json.get("status");
+			if (status.equals("error")) {
+				String errorMessage = (String) json.get("error");
+				throw new IllegalStateException(errorMessage);
+			}
+
+			if (status.equals("success")) {
+				JSONObject data = (JSONObject) json.get("data");
+				String name = (String) data.get("name");
+				String description = (String) data.get("description");
+				return new Organization(orgId, name, description);
+			} else {
+				return null;
+			}
+		} catch (ParseException e) {
+			throw new IllegalStateException("Malformed JSON received");
+		}
+	}
 }

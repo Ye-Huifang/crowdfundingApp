@@ -97,4 +97,21 @@ public class DataManager_getContributorName_Test {
         dm.createFund("12345", "new fund", "this is the new fund", 10000);
     }
 
+    @Test
+    public void testGetContributorNameJsonNotAnObject() {
+        DataManager dm = new DataManager(new WebClient("localhost", 3001) {
+            @Override
+            public String makeRequest(String resource, Map<String, Object> queryParams) {
+                return "[\"This is a JSON array not an object\"]";
+            }
+        });
+
+        try {
+            dm.getContributorName("1");
+            fail("Expected an IllegalStateException to be thrown");
+        } catch (IllegalStateException e) {
+            assertEquals("Malformed JSON received", e.getMessage());
+        }
+    }
+
 }
