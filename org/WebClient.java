@@ -19,40 +19,26 @@ public class WebClient {
 	 * @return the JSON object returned by the API if successful, null if unsuccessful
 	 */
 	public String makeRequest(String resource, Map<String, Object> queryParams) {
-		
 		try {
-		
 			String request = "http://" + host + ":" + port + resource + "?";
-			
 			for (String key : queryParams.keySet()) {
 				request += key + "=" + queryParams.get(key).toString().replaceAll(" ", "%20") + "&";
-				
 			}
-			
-			System.out.println("Web Client request: " + request);
-			
+
 			URL url = new URL(request);
-		    url.openConnection(); 
-	    	Scanner in = new Scanner(url.openStream());
-	    	String response = "";
-	    	while (in.hasNext()) {
-	    		String line = in.nextLine();
-	    		response += line;
-	    	}
-
-	    	System.out.println("Web Client response: " + response);
-	    	
-	    	in.close();
-
-	    	return response;
-			
-			
+			url.openConnection();
+			Scanner in = new Scanner(url.openStream());
+			String response = "";
+			while (in.hasNext()) {
+				String line = in.nextLine();
+				response += line;
+			}
+			in.close();
+			return response;
 		}
 		catch (Exception e) {
 			return null;
 		}
-		
 	}
-
 
 }

@@ -1,10 +1,11 @@
-import static org.junit.Assert.*;
+import org.junit.Test;
 
 import java.util.Map;
 
-import org.junit.Test;
+import static org.junit.Assert.*;
 
 public class DataManager_getContributorName_Test {
+
     @Test
     public void testGetContributorNameSuccess() {
         DataManager dm = new DataManager(new WebClient("localhost", 3001) {
@@ -19,7 +20,6 @@ public class DataManager_getContributorName_Test {
         assertEquals("Catherine", name);
     }
 
-
     @Test
     public void testGetContributorNameFailure() {
         DataManager dm = new DataManager(new WebClient("localhost", 3001) {
@@ -33,19 +33,68 @@ public class DataManager_getContributorName_Test {
         assertNull(name);
     }
 
-    @Test(expected=IllegalStateException.class)
+    @Test(expected = IllegalStateException.class)
+    public void testGetContributorNameNullWebClient() {
+        DataManager dm = new DataManager(null);
+        dm.getContributorName("1");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testGetContributorNameNullId() {
+        DataManager dm = new DataManager(new WebClient("localhost", 3001));
+        dm.getContributorName(null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testGetContributorNameEmptyId() {
+        DataManager dm = new DataManager(new WebClient("localhost", 3001));
+        dm.getContributorName("");
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void testGetContributorNameNullResponse() {
+        DataManager dm = new DataManager(new WebClient("localhost", 3001) {
+            @Override
+            public String makeRequest(String resource, Map<String, Object> queryParams) {
+                return null;
+            }
+        });
+        dm.getContributorName("1");
+    }
+
+    @Test(expected = IllegalStateException.class)
     public void testGetContributorNameInvalidJson() {
         DataManager dm = new DataManager(new WebClient("localhost", 3001) {
             @Override
             public String makeRequest(String resource, Map<String, Object> queryParams) {
-                // Return an invalid JSON string
                 return "This is not a valid JSON string";
             }
         });
 
-        // Since the JSON string is invalid, the getContributorName method should throw an exception and return null
-        String name = dm.getContributorName("testId");
-//        assertNull(name);
+        dm.getContributorName("1");
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void testGetContributorNameStatusError() {
+        DataManager dm = new DataManager(new WebClient("localhost", 3001) {
+            @Override
+            public String makeRequest(String resource, Map<String, Object> queryParams) {
+                return "{\"status\":\"error\",\"error\":\"An error occurred.\"}";
+            }
+        });
+        dm.getContributorName("1");
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void testCreateFundErrorStatus() {
+        DataManager dm = new DataManager(new WebClient("localhost", 3001) {
+            @Override
+            public String makeRequest(String resource, Map<String, Object> queryParams) {
+                return "{\"status\":\"error\",\"error\":\"An error occurred.\"}";
+            }
+        });
+
+        dm.createFund("12345", "new fund", "this is the new fund", 10000);
     }
 
 }

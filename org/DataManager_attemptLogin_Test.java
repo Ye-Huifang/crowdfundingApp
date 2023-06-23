@@ -1,8 +1,7 @@
 import static org.junit.Assert.*;
-
 import java.util.Map;
-
 import org.junit.Test;
+import java.lang.reflect.Field;
 
 public class DataManager_attemptLogin_Test {
 
@@ -33,7 +32,6 @@ public class DataManager_attemptLogin_Test {
         });
 
         Organization org = dm.attemptLogin("test", "password");
-//        assertNull(org);
     }
 
     @Test
@@ -109,7 +107,136 @@ public class DataManager_attemptLogin_Test {
 
         // Since the JSON string is invalid, the attemptLogin method should throw an exception
         Organization org = dm.attemptLogin("test", "password");
-//        assertNull(org);
+    }
+
+    @Test
+    public void testAttemptLoginNullWebClient() {
+        try {
+            DataManager dm = new DataManager(null);
+            dm.attemptLogin("test", "password");
+            fail("Expected an IllegalStateException to be thrown");
+        } catch (IllegalStateException e) {
+            assertEquals("WebClient cannot be null", e.getMessage());
+        }
+    }
+
+    @Test
+    public void testAttemptLoginNullLogin() {
+        try {
+            DataManager dm = new DataManager(new WebClient("localhost", 3001));
+            dm.attemptLogin(null, "password");
+            fail("Expected an IllegalArgumentException to be thrown");
+        } catch (IllegalArgumentException e) {
+            assertEquals("Login and password cannot be null", e.getMessage());
+        }
+    }
+
+    @Test
+    public void testAttemptLoginNullPassword() {
+        try {
+            DataManager dm = new DataManager(new WebClient("localhost", 3001));
+            dm.attemptLogin("test", null);
+            fail("Expected an IllegalArgumentException to be thrown");
+        } catch (IllegalArgumentException e) {
+            assertEquals("Login and password cannot be null", e.getMessage());
+        }
+    }
+
+    @Test
+    public void testAttemptLoginCannotConnectToServer() {
+        DataManager dm = new DataManager(new WebClient("localhost", 3001) {
+            @Override
+            public String makeRequest(String resource, Map<String, Object> queryParams) {
+                return null;
+            }
+        });
+
+        try {
+            dm.attemptLogin("test", "password");
+            fail("Expected an IllegalStateException to be thrown");
+        } catch (IllegalStateException e) {
+            assertEquals("Cannot connect to server", e.getMessage());
+        }
+    }
+
+    @Test
+    public void testAttemptLoginJsonNotAnObject() {
+        DataManager dm = new DataManager(new WebClient("localhost", 3001) {
+            @Override
+            public String makeRequest(String resource, Map<String, Object> queryParams) {
+                return "[\"This is a JSON array not an object\"]";
+            }
+        });
+
+        try {
+            dm.attemptLogin("test", "password");
+            fail("Expected an IllegalStateException to be thrown");
+        } catch (IllegalStateException e) {
+            assertEquals("Malformed JSON received", e.getMessage());
+        }
+    }
+
+    @Test
+    public void testAttemptLoginStatusError() {
+        DataManager dm = new DataManager(new WebClient("localhost", 3001) {
+            @Override
+            public String makeRequest(String resource, Map<String, Object> queryParams) {
+                return "{\"status\":\"error\",\"error\":\"Some server error\"}";
+            }
+        });
+
+        try {
+            dm.attemptLogin("test", "password");
+            fail("Expected an IllegalStateException to be thrown");
+        } catch (IllegalStateException e) {
+            assertEquals("Some server error", e.getMessage());
+        }
+    }
+
+    @Test
+    public void testAttemptLoginContributorInCache() {
+        DataManager dm = new DataManager(new WebClient("localhost", 3001) {
+            @Override
+            public String makeRequest(String resource, Map<String, Object> queryParams) {
+                if(resource.equals("/findOrgByLoginAndPassword")) {
+                    return "{\"status\":\"success\",\"data\":{\"_id\":\"12345\",\"name\":\"OrgName\",\"description\":\"OrgDescription\",\"funds\":[{\"_id\":\"fund1\",\"name\":\"fundName1\",\"description\":\"fundDescription1\",\"target\":1000,\"donations\":[{\"contributor\":\"contributor1\",\"amount\":500,\"date\":\"2023-01-01\"}]}]}}";
+                } else {
+                    return "{\"status\":\"fail\"}";
+                }
+            }
+        });
+
+        // Use reflection to access 'contributorNameCache'
+        try {
+            Field field = DataManager.class.getDeclaredField("contributorNameCache");
+            field.setAccessible(true);
+            Map<String, String> contributorNameCache = (Map<String, String>) field.get(dm);
+            contributorNameCache.put("contributor1", "CachedName");
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            fail("Failed to access 'contributorNameCache'");
+        }
+
+        Organization org = dm.attemptLogin("test", "password");
+        assertNotNull(org);
+        assertEquals("12345", org.getId());
+        assertEquals("OrgName", org.getName());
+        assertEquals("OrgDescription", org.getDescription());
+
+        // Check fund
+        assertEquals(1, org.getFunds().size());
+        Fund fund = org.getFunds().get(0);
+        assertEquals("fund1", fund.getId());
+        assertEquals("fundName1", fund.getName());
+        assertEquals("fundDescription1", fund.getDescription());
+        assertEquals(1000, fund.getTarget());
+
+        // Check donation
+        assertEquals(1, fund.getDonations().size());
+        Donation donation = fund.getDonations().get(0);
+        assertEquals("fund1", donation.getFundId());
+        assertEquals("CachedName", donation.getContributorName()); // Expect the cached name here
+        assertEquals(500, donation.getAmount());
+        assertEquals("2023-01-01", donation.getDate());
     }
 
 }

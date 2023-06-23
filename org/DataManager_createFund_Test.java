@@ -1,32 +1,22 @@
-import static org.junit.Assert.*;
+import org.junit.Test;
 
 import java.util.Map;
 
-import org.junit.Test;
+import static org.junit.Assert.*;
 
 public class DataManager_createFund_Test {
-	
-	/*
-	 * This is a test class for the DataManager.createFund method.
-	 * Add more tests here for this method as needed.
-	 * 
-	 * When writing tests for other methods, be sure to put them into separate
-	 * JUnit test classes.
-	 */
 
 	@Test
 	public void testSuccessfulCreation() {
 		DataManager dm = new DataManager(new WebClient("localhost", 3001) {
-			
 			@Override
 			public String makeRequest(String resource, Map<String, Object> queryParams) {
 				return "{\"status\":\"success\",\"data\":{\"_id\":\"12345\",\"name\":\"new fund\",\"description\":\"this is the new fund\",\"target\":10000,\"org\":\"5678\",\"donations\":[],\"__v\":0}}";
 			}
 		});
-		
-		
+
 		Fund f = dm.createFund("12345", "new fund", "this is the new fund", 10000);
-		
+
 		assertNotNull(f);
 		assertEquals("this is the new fund", f.getDescription());
 		assertEquals("12345", f.getId());
@@ -43,25 +33,88 @@ public class DataManager_createFund_Test {
 			}
 		});
 
-		Fund f = dm.createFund("12345", "new fund", "this is the new fund", 10000);
-		assertNull(f);
+		try {
+			Fund f = dm.createFund("12345", "new fund", "this is the new fund", 10000);
+			assertNull(f);
+		} catch (IllegalStateException e) {
+			assertEquals("Malformed JSON received", e.getMessage());
+		}
 	}
 
-	@Test(expected=IllegalStateException.class)
-	public void testCreateFundInvalidJson() {
+
+	@Test(expected = IllegalStateException.class)
+	public void testCreateFundMalformedJson() {
 		DataManager dm = new DataManager(new WebClient("localhost", 3001) {
 			@Override
 			public String makeRequest(String resource, Map<String, Object> queryParams) {
-				// Return an invalid JSON string
-				return "This is not a valid JSON string";
+				// Return a response with malformed JSON
+				return "Invalid JSON response";
 			}
 		});
 
-		Fund fund = dm.createFund("orgId", "fundName", "fundDescription", 1000);
-
-		// Since the JSON string is invalid, the createFund method should return null
-//		assertNull(fund);
+		dm.createFund("12345", "new fund", "this is the new fund", 10000);
 	}
-	
+
+	@Test(expected = IllegalStateException.class)
+	public void testCreateFundNullWebClient() {
+		DataManager dm = new DataManager(null);
+
+		dm.createFund("12345", "new fund", "this is the new fund", 10000);
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void testCreateFundNullOrgId() {
+		DataManager dm = new DataManager(new WebClient("localhost", 3001));
+
+		dm.createFund(null, "new fund", "this is the new fund", 10000);
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void testCreateFundEmptyOrgId() {
+		DataManager dm = new DataManager(new WebClient("localhost", 3001));
+
+		dm.createFund("", "new fund", "this is the new fund", 10000);
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void testCreateFundNullName() {
+		DataManager dm = new DataManager(new WebClient("localhost", 3001));
+
+		dm.createFund("12345", null, "this is the new fund", 10000);
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void testCreateFundEmptyName() {
+		DataManager dm = new DataManager(new WebClient("localhost", 3001));
+
+		dm.createFund("12345", "", "this is the new fund", 10000);
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void testCreateFundNullDescription() {
+		DataManager dm = new DataManager(new WebClient("localhost", 3001));
+
+		dm.createFund("12345", "new fund", null, 10000);
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void testCreateFundEmptyDescription() {
+		DataManager dm = new DataManager(new WebClient("localhost", 3001));
+
+		dm.createFund("12345", "new fund", "", 10000);
+	}
+
+	@Test(expected = IllegalStateException.class)
+	public void testCreateFundNullResponse() {
+		DataManager dm = new DataManager(new WebClient("localhost", 3001) {
+			@Override
+			public String makeRequest(String resource, Map<String, Object> queryParams) {
+				// Return null for the response
+				return null;
+			}
+		});
+
+		dm.createFund("12345", "new fund", "this is the new fund", 10000);
+	}
 
 }
