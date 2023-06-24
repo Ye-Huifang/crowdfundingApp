@@ -4,11 +4,13 @@ public class UserInterface {
 
 	private DataManager dataManager;
 	private Organization org;
+	private String loggedInUser;
 	private static Scanner in = new Scanner(System.in);
 
-	public UserInterface(DataManager dataManager, Organization org) {
+	public UserInterface(DataManager dataManager, Organization org, String loggedInUser) {
 		this.dataManager = dataManager;
 		this.org = org;
+		this.loggedInUser = loggedInUser;
 	}
 
 	public void start() {
@@ -24,12 +26,50 @@ public class UserInterface {
 				System.out.println("Enter the fund number to see more information.");
 			}
 			System.out.println("Enter 0 to create a new fund");
-			int option = in.nextInt();
-			in.nextLine();
-			if (option == 0) {
-				createFund();
+			System.out.println("Enter c to change password");
+			String option = in.nextLine();
+			try {
+				int optionNum = Integer.parseInt(option);
+				if (optionNum == 0) {
+					createFund();
+				} else {
+					displayFund(optionNum);
+				}
+			} catch (NumberFormatException e) {
+				if (option.equals("c")) {
+					changePassword();
+				}
+			}
+		}
+	}
+
+	public void changePassword() {
+		System.out.println("Enter your current password");
+		String password = in.nextLine();
+		Organization org;
+		try {
+			org = dataManager.attemptLogin(loggedInUser, password);
+			if (org == null) {
+				return;
+			}
+		} catch (Exception e) {
+			System.out.println("The input password is incorrect.");
+			return;
+		}
+		System.out.println("Enter new password:");
+		String newPassword = in.nextLine();
+		System.out.println("Enter new password again:");
+		if (!newPassword.equals(in.nextLine())) {
+			System.out.println("The password you entered does not match the first one.");
+			return;
+		}
+		try {
+			dataManager.attemptChangePassword(org, newPassword);
+		} catch (IllegalStateException e) {
+			if (e.getMessage().equals("Cannot connect to server")) {
+				System.out.println("Error in communicating with the server. Please try again.");
 			} else {
-				displayFund(option);
+				System.out.println("Password change failed.");
 			}
 		}
 	}
@@ -134,17 +174,35 @@ public class UserInterface {
 		}
 	}
 
-	public static void main(String[] args) {
-		DataManager ds = new DataManager(new WebClient("localhost", 3001));
-		String login = args[0];
-		String password = args[1];
+	private static int promptBeforeLogin() {
+		while (true) {
+			System.out.println("Select from the below options (Enter 1 or 2): \n1. Login\n2. Register");
+			int option;
+			try {
+				option = Integer.parseInt(in.nextLine());
+			} catch (Exception e) {
+				System.out.println("Invalid input.");
+				continue;
+			}
+			if (option != 1 && option != 2) {
+				System.out.println("You should input either 1 or 2.");
+				continue;
+			}
+			return option;
+		}
+	}
 
+	private static void login(String[] args, DataManager ds) {
 		try {
+			System.out.println("Login user:");
+			String login = in.nextLine();
+			System.out.println("Password:");
+			String password = in.nextLine();
 			Organization org = ds.attemptLogin(login, password);
 			if (org == null) {
 				System.out.println("Login failed.");
 			} else {
-				UserInterface ui = new UserInterface(ds, org);
+				UserInterface ui = new UserInterface(ds, org, login);
 				ui.start();
 			}
 		} catch (IllegalStateException e) {
@@ -155,6 +213,43 @@ public class UserInterface {
 			}
 			in.nextLine();
 			main(args);
+		}
+	}
+
+	private static void register(String[] args, DataManager ds) {
+		try {
+			System.out.println("Register login name:");
+			String login = in.nextLine();
+			System.out.println("Password:");
+			String password = in.nextLine();
+			System.out.println("Organization name:");
+			String organizationName = in.nextLine();
+			System.out.println("Organization Description:");
+			String organizationDescription = in.nextLine();
+			Organization org = ds.attemptRegister(login, password, organizationName, organizationDescription);
+			if (org == null) {
+				System.out.println("Register failed.");
+			} else {
+				UserInterface ui = new UserInterface(ds, org, login);
+				ui.start();
+			}
+		} catch (IllegalStateException e) {
+			if (e.getMessage() != null && e.getMessage().equals("Cannot connect to server")) {
+				System.out.println("Error in communicating with the server. Please try again.");
+			} else {
+				System.out.println("Register failed.");
+			}
+			main(args);
+		}
+	}
+
+	public static void main(String[] args) {
+		DataManager ds = new DataManager(new WebClient("localhost", 3001));
+		int option = promptBeforeLogin();
+		if (option == 1) {
+			login(args, ds);
+		} else if (option == 2) {
+			register(args, ds);
 		}
 	}
 }

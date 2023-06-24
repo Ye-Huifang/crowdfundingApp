@@ -29,6 +29,43 @@ app.use('/findOrgByLoginAndPassword', (req, res) => {
 	    });
     });
 
+app.use('/createOrganization', (req, res) => {
+	var org = new Organization({
+		login: req.query.login,
+		password: req.query.password,
+		name: req.query.name,
+		description: req.query.description,
+		funds: []
+	});
+
+	org.save( (err) => {
+		if (err) {
+			res.json({ "status": "error", "data": err});
+		}
+		else {
+			res.json({ "data": org , "status": "success"});
+		}
+	});
+});
+
+app.use('/updateOrganization', (req, res) => {
+
+	var filter = {"_id" : req.query.id };
+
+	var update = { "password" : req.query.password };
+	
+	var action = { "$set" : update };
+
+	Organization.findOneAndUpdate( filter, action, { new : true }, (err, result) => {
+		if (err) {
+		    res.json({ "status": "error", "data": err });
+		}
+		else {
+		    res.json({ "data" : result , 'status' : 'success'});
+		}
+	});
+});
+
 /*
 Create a new fund
 */

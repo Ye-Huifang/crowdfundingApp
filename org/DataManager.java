@@ -72,13 +72,7 @@ public class DataManager {
 						String contributorId = (String) donation.get("contributor");
 
 						String contributorName = null;
-						if (contributorNameCache.containsKey(contributorId)) {
-							contributorName = contributorNameCache.get(contributorId);
-						} else {
-							contributorName = this.getContributorName(contributorId);
-							contributorNameCache.put(contributorId, contributorName);
-						}
-
+						contributorName = this.getContributorName(contributorId);
 						long amount = (Long) donation.get("amount");
 						String date = (String) donation.get("date");
 						donationList.add(new Donation(fundId, contributorName, amount, date));
@@ -100,6 +94,87 @@ public class DataManager {
 		}
 	}
 
+	public Organization attemptRegister(String login, String password, String name, String description) {
+		if (client == null) {
+			throw new IllegalStateException("WebClient cannot be null");
+		}
+		if (login == null || password == null) {
+			throw new IllegalArgumentException("Login and password cannot be null");
+		}
+		try {
+			Map<String, Object> map = new HashMap<>();
+			map.put("login", login);
+			map.put("password", password);
+			map.put("name", name);
+			map.put("description", description);
+			String response = client.makeRequest("/createOrganization", map);
+			System.out.println(response);
+			if (response == null) {
+				throw new IllegalStateException("Cannot connect to server");
+			}
+
+			JSONParser parser = new JSONParser();
+			Object obj = parser.parse(response);
+			if (!(obj instanceof JSONObject)) {
+				throw new IllegalStateException("Malformed JSON received");
+			}
+			JSONObject json = (JSONObject) obj;
+
+			String status = (String) json.get("status");
+
+			if (status.equals("success")) {
+				Organization org = attemptLogin(login, password);
+				return org;
+			} else if (status.equals("error")) {
+				String errorMessage = (String) json.get("error");
+				throw new IllegalStateException(errorMessage);
+			} else {
+				throw new IllegalStateException("Malformed JSON received");
+			}
+		} catch (ParseException e) {
+			throw new IllegalStateException("Malformed JSON received");
+		}
+	}
+
+	public void attemptChangePassword(Organization org, String newPassword) {
+		if (client == null) {
+			throw new IllegalStateException("WebClient cannot be null");
+		}
+		if (org == null || newPassword == null) {
+			throw new IllegalArgumentException("org and password cannot be null");
+		}
+		try {
+			Map<String, Object> map = new HashMap<>();
+			map.put("id", org.getId());
+			map.put("password", newPassword);
+
+			String response = client.makeRequest("/updateOrganization", map);
+			System.out.println(response);
+			if (response == null) {
+				throw new IllegalStateException("Cannot connect to server");
+			}
+
+			JSONParser parser = new JSONParser();
+			Object obj = parser.parse(response);
+			if (!(obj instanceof JSONObject)) {
+				throw new IllegalStateException("Malformed JSON received");
+			}
+			JSONObject json = (JSONObject) obj;
+
+			String status = (String) json.get("status");
+
+			if (status.equals("success")) {
+				return;
+			} else if (status.equals("error")) {
+				String errorMessage = (String) json.get("error");
+				throw new IllegalStateException(errorMessage);
+			} else {
+				throw new IllegalStateException("Malformed JSON received");
+			}
+		} catch (ParseException e) {
+			throw new IllegalStateException("Malformed JSON received");
+		}
+	}
 
 	public String getContributorName(String id) {
 		if (client == null) {
@@ -108,7 +183,9 @@ public class DataManager {
 		if (id == null || id.isEmpty()) {
 			throw new IllegalArgumentException("id cannot be null or empty");
 		}
-
+		if (contributorNameCache.containsKey(id)) {
+			return contributorNameCache.get(id);
+		}
 		try {
 			Map<String, Object> map = new HashMap<>();
 			map.put("id", id);
@@ -133,6 +210,7 @@ public class DataManager {
 
 			if (status.equals("success")) {
 				String name = (String) json.get("data");
+				contributorNameCache.put(id, name);
 				return name;
 			} else {
 				return null;
