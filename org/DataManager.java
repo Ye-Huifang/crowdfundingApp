@@ -205,6 +205,7 @@ public class DataManager {
 			String status = (String) json.get("status");
 			if (status.equals("error")) {
 				String errorMessage = (String) json.get("error");
+				System.out.println("warning: an error occured");
 				throw new IllegalStateException(errorMessage);
 			}
 
@@ -344,4 +345,47 @@ public class DataManager {
 			throw new IllegalStateException("Malformed JSON received");
 		}
 	}
+	public Donation makeDonation(String contributorId, String fundId, String amount) {
+		if (client == null) {
+			throw new IllegalStateException("WebClient cannot be null");
+		}
+		if (fundId == null || fundId.isEmpty() || contributorId == null || contributorId.isEmpty() || amount == null || amount.isEmpty() ) {
+			throw new IllegalArgumentException("cannot be null or empty");
+		}
+		try {
+			Map<String, Object> map = new HashMap<>();
+			map.put("contributor", contributorId);
+			map.put("fund", fundId);
+			map.put("amount", amount);
+			String response = client.makeRequest("/makeDonation", map);
+			if (response == null) {
+				throw new IllegalStateException("Cannot connect to server");
+			}
+			JSONParser parser = new JSONParser();
+			Object obj = parser.parse(response);
+			JSONObject json = (JSONObject) obj;
+			String status = (String) json.get("status");
+			if (status.equals("error")) {
+				String errorMessage = (String) json.get("error");
+				throw new IllegalStateException(errorMessage);
+			}
+			if (status.equals("success")) {
+				JSONObject data = (JSONObject) json.get("data");
+				String d_fundid = (String) data.get("fund");
+				String d_contributorid = (String) data.get("contributor");
+				String d_date = (String) data.get("date");
+				long d_amount = (long) data.get("amount");
+				String d_contributor_name = getContributorName(d_contributorid);
+				Donation d = new Donation(d_fundid, d_contributor_name, d_amount, d_date);
+				return d;
+			} else {
+				return null;
+			}
+		} catch (ParseException e) {
+			throw new IllegalStateException("Malformed JSON received");
+		}
+	}
+
+
+
 }

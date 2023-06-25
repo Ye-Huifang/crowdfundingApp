@@ -139,7 +139,7 @@ public class UserInterface {
 				List<Integer> newList = new ArrayList<>();
 				newList.add(count);
 				newList.add(totalAmount);
-				treeMap.put(name, newList);
+				treeMap.put(name, newList); 
 			}
 
 			TreeMap<String, List<Integer>> sortedTreeMap = new TreeMap<>((key1, key2) -> {
@@ -161,11 +161,14 @@ public class UserInterface {
 
 			System.out.println("Enter 0 to delete this fund");
 			System.out.println("Enter 1 to go back to the listing of funds");
+			System.out.println("Enter 2 to make donations");
 			int option = in.nextInt();
 			in.nextLine();
 
 			if (option == 0) {
-				deleteFund(fundNumber);
+				deleteFund(fundNumber); 
+			}else if (option == 2) {
+				makeDonation(fundNumber);
 			}
 		} catch (Exception e) {
 			System.out.println("An error occurred while displaying the fund information. Please try again.");
@@ -174,6 +177,56 @@ public class UserInterface {
 		}
 	}
 
+	public void makeDonation(int fundNumber) {
+		Fund fund = org.getFunds().get(fundNumber - 1);
+		System.out.println("contributor id:");
+		String contributorid = in.nextLine();
+		while (contributorid.isEmpty() || !isContributorIdValid(contributorid)) {
+			System.out.println("Invalid contributor id, retry please");
+			contributorid = in.nextLine();
+		} 
+
+		System.out.println("amount:");
+		String donationamount = in.nextLine();
+		
+		while(donationamount.isEmpty() || !isAmountValid(donationamount) || Integer.parseInt(donationamount) < 0) {
+			System.out.println("Invalid amount, retry please");
+			donationamount = in.nextLine();
+		}
+		System.out.println("Enter 1 to submit");
+		int option = in.nextInt();
+		if(option == 1) {
+			
+			String fundid = fund.getId();
+			Donation d = dataManager.makeDonation(contributorid, fundid, donationamount);
+			if (d != null) {
+				List<Donation> donations = fund.getDonations();
+				donations.add(d);
+				fund.setDonations(donations);
+			}
+		}
+		displayFund(fundNumber);
+
+	}
+	
+	private boolean isAmountValid(String donationamount) {
+		for (int i = 0; i < donationamount.length(); i++) {
+			if(!Character.isDigit(donationamount.charAt(i))){
+				return false;
+			}
+		} 
+		return true;
+	}
+	
+	private boolean isContributorIdValid(String id) {
+	    try {
+	        String name = dataManager.getContributorName(id);
+	        return name != null;
+	    } catch (Exception e) {
+	        return false;
+	    }
+	}
+	
 	private static int promptBeforeLogin() {
 		while (true) {
 			System.out.println("Select from the below options (Enter 1 or 2): \n1. Login\n2. Register");
