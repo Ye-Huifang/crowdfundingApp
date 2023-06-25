@@ -25,6 +25,8 @@ We first introduced a new variable `fundNameCache`, which was a HashMap object. 
 
 Then we modified the logic for retrieving the name of the fund in attemptLogin method. We first checked whether the `fundNameCache` already contained the name for the current fund's ID. If it did, we retrieved the fund name from the cache. If it didn't, we called the `getFundName` method to get the name from the API, and subsequently stored this value in `fundNameCache` for future use.
 
+Then in the userInterface, we provided the option of making donations when displaying funds. The user will have to input a valid contributor id for the donation and a numeric and non-negative value for the donation amount. Both fields have to be non-empty or else we will keep sending prompts for the user to retry and enter again. Once we are sure that both fields are valid and the contributor id is already in our database, we will forward the information to the datamanager and the datamanager will send a request to the server. After receiving response from the server, we will forward the donation back the userinterface and it'll add the donation to the donationlist following the fund that we chose previously. During this process, any error occurred will be followed by a warning message and a prompt to adjust the input.
+
 # 3. Bugs Found and Fixed
 N/A
 
