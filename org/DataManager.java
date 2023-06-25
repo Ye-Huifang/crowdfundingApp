@@ -98,7 +98,7 @@ public class DataManager {
 		if (client == null) {
 			throw new IllegalStateException("WebClient cannot be null");
 		}
-		if (login == null || password == null) {
+		if (login == null || password == null || name == null || description == null) {
 			throw new IllegalArgumentException("Login and password cannot be null");
 		}
 		try {
