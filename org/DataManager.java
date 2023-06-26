@@ -312,7 +312,7 @@ public class DataManager {
 			map.put("orgId", orgId);
 			map.put("name", orgName);
 			map.put("description", orgDescription);
-			String response = client.makeRequest("/updateOrg", map);
+			String response = client.makeRequest("/editAccount", map);
 
 			if (response == null) {
 				throw new IllegalStateException("Cannot connect to server");
