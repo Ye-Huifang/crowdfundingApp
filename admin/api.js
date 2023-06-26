@@ -87,7 +87,16 @@ app.use('/editAccount', (req, res) => {
 		if (err) {
 			res.json({ "status": "error", "data": err });
 		} else {
-			res.json({ "data": result, "status": "success" });
+			// Preserve the existing funds
+			result.funds = req.query.funds;
+
+			result.save((err, updatedOrg) => {
+				if (err) {
+					res.json({ "status": "error", "data": err });
+				} else {
+					res.json({ "data": updatedOrg, "status": "success" });
+				}
+			});
 		}
 	});
 });
