@@ -32,7 +32,6 @@ public class DataManager {
 			map.put("login", login);
 			map.put("password", password);
 			String response = client.makeRequest("/findOrgByLoginAndPassword", map);
-			System.out.println(response);
 			if (response == null) {
 				throw new IllegalStateException("Cannot connect to server");
 			}
@@ -355,7 +354,7 @@ public class DataManager {
 		try {
 			Map<String, Object> map = new HashMap<>();
 			map.put("contributor", contributorId);
-			map.put("fund", fundId);
+			map.put("fund", fundId); 
 			map.put("amount", amount);
 			String response = client.makeRequest("/makeDonation", map);
 			if (response == null) {

@@ -123,51 +123,19 @@ public class UserInterface {
 			System.out.println("Description: " + fund.getDescription());
 			System.out.println("Target: $" + fund.getTarget());
 
-			List<Donation> donations = fund.getDonations();
-			System.out.println("Number of donations: " + donations.size());
-			long totalDonations = 0;
-			TreeMap<String, List<Integer>> treeMap = new TreeMap<>();
-
-			for (Donation donation : donations) {
-				totalDonations += donation.getAmount();
-				String name = donation.getContributorName();
-
-				List<Integer> prevList = treeMap.getOrDefault(name, new ArrayList<>());
-				int count = prevList.isEmpty() ? 1 : prevList.get(0) + 1;
-				int totalAmount = prevList.isEmpty() ? (int) donation.getAmount() : prevList.get(1) + (int) donation.getAmount();
-
-				List<Integer> newList = new ArrayList<>();
-				newList.add(count);
-				newList.add(totalAmount);
-				treeMap.put(name, newList); 
-			}
-
-			TreeMap<String, List<Integer>> sortedTreeMap = new TreeMap<>((key1, key2) -> {
-				List<Integer> list1 = treeMap.get(key1);
-				List<Integer> list2 = treeMap.get(key2);
-				return list2.get(1) - list1.get(1);
-			});
-			sortedTreeMap.putAll(treeMap);
-
-			for (Map.Entry<String, List<Integer>> entry : sortedTreeMap.entrySet()) {
-				String name = entry.getKey();
-				List<Integer> values = entry.getValue();
-				int count = values.get(0);
-				int totalAmount = values.get(1);
-				System.out.println("* " + name + ", " + count + " donations, $" + totalAmount + " total");
-			}
-			int percentage = (int) (totalDonations * 100.0 / fund.getTarget());
-			System.out.println("Total donation amount: $" + totalDonations + " (" + percentage + "% of target)");
-
+			displayAllDonations(fundNumber);
 			System.out.println("Enter 0 to delete this fund");
 			System.out.println("Enter 1 to go back to the listing of funds");
-			System.out.println("Enter 2 to make donations");
+			System.out.println("Enter 2 to look at donations grouped by contributors");
+			System.out.println("Enter 3 to make donations");
 			int option = in.nextInt();
 			in.nextLine();
 
 			if (option == 0) {
 				deleteFund(fundNumber); 
-			}else if (option == 2) {
+			} else if (option == 2) {
+				displayAggregateDonations(fundNumber);
+			} else if (option == 3) {
 				makeDonation(fundNumber);
 			}
 		} catch (Exception e) {
@@ -176,12 +144,71 @@ public class UserInterface {
 			displayFund(fundNumber);
 		}
 	}
+	
+	private void displayAllDonations(int fundNumber) {
+		Fund fund = org.getFunds().get(fundNumber - 1);
+		System.out.println("\n\n");
+		System.out.println("Here is information about this fund:");
+		System.out.println("Name: " + fund.getName());
+		System.out.println("Description: " + fund.getDescription());
+		System.out.println("Target: $" + fund.getTarget());
+		List<Donation> donations = fund.getDonations();
+		System.out.println("Number of donations: " + donations.size());
+		for (Donation donation : donations) {
+			System.out.println("* " + donation.getContributorName() + ": $" + donation.getAmount() + " on " + donation.getDate());
+		}
+		
+	}
+	
+	private void displayAggregateDonations(int fundNumber) {
+		Fund fund = org.getFunds().get(fundNumber - 1);
+		System.out.println("\n\n");
+		System.out.println("Here is information about this fund:");
+		System.out.println("Name: " + fund.getName());
+		System.out.println("Description: " + fund.getDescription());
+		System.out.println("Target: $" + fund.getTarget());
+		List<Donation> donations = fund.getDonations();
+		System.out.println("Number of donations: " + donations.size());
+		long totalDonations = 0;
+		TreeMap<String, List<Integer>> treeMap = new TreeMap<>();
 
-	public void makeDonation(int fundNumber) {
+		for (Donation donation : donations) {
+			totalDonations += donation.getAmount();
+			String name = donation.getContributorName();
+
+			List<Integer> prevList = treeMap.getOrDefault(name, new ArrayList<>());
+			int count = prevList.isEmpty() ? 1 : prevList.get(0) + 1;
+			int totalAmount = prevList.isEmpty() ? (int) donation.getAmount() : prevList.get(1) + (int) donation.getAmount();
+
+			List<Integer> newList = new ArrayList<>();
+			newList.add(count);
+			newList.add(totalAmount);
+			treeMap.put(name, newList); 
+		}
+
+		TreeMap<String, List<Integer>> sortedTreeMap = new TreeMap<>((key1, key2) -> {
+			List<Integer> list1 = treeMap.get(key1);
+			List<Integer> list2 = treeMap.get(key2);
+			return list2.get(1) - list1.get(1);
+		});
+		sortedTreeMap.putAll(treeMap);
+
+		for (Map.Entry<String, List<Integer>> entry : sortedTreeMap.entrySet()) {
+			String name = entry.getKey();
+			List<Integer> values = entry.getValue();
+			int count = values.get(0);
+			int totalAmount = values.get(1);
+			System.out.println("* " + name + ", " + count + " donations, $" + totalAmount + " total");
+		}
+		int percentage = (int) (totalDonations * 100.0 / fund.getTarget());
+		System.out.println("Total donation amount: $" + totalDonations + " (" + percentage + "% of target)");
+	}
+	
+	private void makeDonation(int fundNumber) {
 		Fund fund = org.getFunds().get(fundNumber - 1);
 		System.out.println("contributor id:");
 		String contributorid = in.nextLine();
-		while (contributorid.isEmpty() || !isContributorIdValid(contributorid)) {
+		while (contributorid.isEmpty() || !isContributorIdValid(contributorid, fundNumber)) {
 			System.out.println("Invalid contributor id, retry please");
 			contributorid = in.nextLine();
 		} 
@@ -198,14 +225,21 @@ public class UserInterface {
 		if(option == 1) {
 			
 			String fundid = fund.getId();
-			Donation d = dataManager.makeDonation(contributorid, fundid, donationamount);
-			if (d != null) {
-				List<Donation> donations = fund.getDonations();
-				donations.add(d);
-				fund.setDonations(donations);
+			try{
+				Donation d = dataManager.makeDonation(contributorid, fundid, donationamount);
+				if (d != null) {
+					List<Donation> donations = fund.getDonations();
+					donations.add(d);
+					fund.setDonations(donations);
+					displayAllDonations(fundNumber);
+				}
+			} catch (Exception e){
+				System.out.println(e.getMessage());
+	            System.out.println("Error: Please try to again");
+	            makeDonation(fundNumber);
 			}
+			
 		}
-		displayFund(fundNumber);
 
 	}
 	
@@ -218,12 +252,15 @@ public class UserInterface {
 		return true;
 	}
 	
-	private boolean isContributorIdValid(String id) {
+	private boolean isContributorIdValid(String id, int fundNumber) {
 	    try {
 	        String name = dataManager.getContributorName(id);
 	        return name != null;
 	    } catch (Exception e) {
-	        return false;
+	    	System.out.println(e.getMessage());
+            System.out.println("Error: Please try to again");
+            makeDonation(fundNumber);
+            return false;
 	    }
 	}
 	
