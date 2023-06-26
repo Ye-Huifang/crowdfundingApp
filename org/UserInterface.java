@@ -27,6 +27,7 @@ public class UserInterface {
 			}
 			System.out.println("Enter 0 to create a new fund");
 			System.out.println("Enter c to change password");
+			System.out.println("Enter e to edit account information");
 			String option = in.nextLine();
 			try {
 				int optionNum = Integer.parseInt(option);
