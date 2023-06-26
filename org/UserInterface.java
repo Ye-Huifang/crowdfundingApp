@@ -88,6 +88,10 @@ public class UserInterface {
 	public void editAccountInfo() {
 		System.out.println("Enter your current password:");
 		String password = in.nextLine();
+		while (password == null || password.isEmpty()) {
+			System.out.println("Password cannot be empty");
+			password = in.nextLine();
+		}
 
 		try {
 			Organization authenticatedOrg = dataManager.attemptLogin(loggedInUser, password);
