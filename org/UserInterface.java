@@ -38,6 +38,8 @@ public class UserInterface {
 			} catch (NumberFormatException e) {
 				if (option.equals("c")) {
 					changePassword();
+				} else if (option.equals("e")) { // Handle edit account info option
+					editAccountInfo();
 				}
 			}
 		}
@@ -71,6 +73,37 @@ public class UserInterface {
 			} else {
 				System.out.println("Password change failed.");
 			}
+		}
+	}
+
+	public void editAccountInfo() {
+		System.out.println("Enter your current password:");
+		String password = in.nextLine();
+
+		try {
+			Organization authenticatedOrg = dataManager.attemptLogin(loggedInUser, password);
+
+			if (authenticatedOrg == null) {
+				System.out.println("Incorrect password. Please try again.");
+				return;
+			}
+
+			System.out.println("Enter the new organization name (leave blank to keep the current name):");
+			String newOrgName = in.nextLine();
+			System.out.println("Enter the new organization description (leave blank to keep the current description):");
+			String newOrgDescription = in.nextLine();
+
+			Organization updatedOrg = dataManager.updateOrganizationInfo(org.getId(), newOrgName, newOrgDescription);
+
+			if (updatedOrg != null) {
+				org = updatedOrg;
+				System.out.println("Account information updated successfully!");
+			} else {
+				System.out.println("Account information update failed.");
+			}
+		} catch (IllegalStateException e) {
+			System.out.println(e.getMessage());
+			System.out.println("Error: Please try again.");
 		}
 	}
 
