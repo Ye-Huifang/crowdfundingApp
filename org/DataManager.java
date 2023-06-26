@@ -328,7 +328,7 @@ public class DataManager {
 
 			String status = (String) json.get("status");
 			if (status.equals("error")) {
-				String errorMessage = (String) json.get("data");
+				String errorMessage = (String) json.get("error");
 				throw new IllegalStateException(errorMessage);
 			}
 
