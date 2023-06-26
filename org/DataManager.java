@@ -148,7 +148,6 @@ public class DataManager {
 			map.put("password", newPassword);
 
 			String response = client.makeRequest("/updateOrganization", map);
-			System.out.println(response);
 			if (response == null) {
 				throw new IllegalStateException("Cannot connect to server");
 			}
@@ -344,6 +343,7 @@ public class DataManager {
 			throw new IllegalStateException("Malformed JSON received");
 		}
 	}
+	
 	public Donation makeDonation(String contributorId, String fundId, String amount) {
 		if (client == null) {
 			throw new IllegalStateException("WebClient cannot be null");
@@ -351,6 +351,7 @@ public class DataManager {
 		if (fundId == null || fundId.isEmpty() || contributorId == null || contributorId.isEmpty() || amount == null || amount.isEmpty() ) {
 			throw new IllegalArgumentException("cannot be null or empty");
 		}
+		
 		try {
 			Map<String, Object> map = new HashMap<>();
 			map.put("contributor", contributorId);

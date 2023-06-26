@@ -31,6 +31,18 @@ public class DataManager_register_Test {
 
         Organization org = dm.attemptRegister("test", "password", "OrgName", "OrgDescription");
     }
+    
+    @Test(expected=IllegalStateException.class)
+    public void testRegisterOther() {
+        DataManager dm = new DataManager(new WebClient("localhost", 3001) {
+            @Override
+            public String makeRequest(String resource, Map<String, Object> queryParams) {
+                return "{\"status\":\"failure\"}";
+            }
+        });
+
+        Organization org = dm.attemptRegister("test", "password", "OrgName", "OrgDescription");
+    }
 
     @Test(expected=IllegalStateException.class)
     public void testRegisterInvalidJson() {
