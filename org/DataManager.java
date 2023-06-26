@@ -309,7 +309,7 @@ public class DataManager {
 
 		try {
 			Map<String, Object> map = new HashMap<>();
-			map.put("orgId", orgId);
+			map.put("id", orgId); // Use "id" instead of "orgId"
 			map.put("name", orgName);
 			map.put("description", orgDescription);
 			String response = client.makeRequest("/editAccount", map);
