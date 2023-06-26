@@ -41,6 +41,20 @@ public class DataManager_createFund_Test {
 		}
 	}
 
+	@Test(expected = IllegalStateException.class)
+	public void testOtherCreation() {
+		DataManager dm = new DataManager(new WebClient("localhost", 3001) {
+			@Override
+			public String makeRequest(String resource, Map<String, Object> queryParams) {
+				return "{\"status\":\"error\"}";
+			}
+		});
+
+		
+			Fund f = dm.createFund("12345", "new fund", "this is the new fund", 10000);
+			assertNull(f);
+		
+	}
 
 	@Test(expected = IllegalStateException.class)
 	public void testCreateFundMalformedJson() {

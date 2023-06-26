@@ -46,6 +46,10 @@ public class UserInterface {
 	public void changePassword() {
 		System.out.println("Enter your current password");
 		String password = in.nextLine();
+		while (password == null || password.isEmpty()) {
+			System.out.println("Password cannot be empty");
+			password = in.nextLine();
+		}
 		Organization org;
 		try {
 			org = dataManager.attemptLogin(loggedInUser, password);
@@ -58,6 +62,10 @@ public class UserInterface {
 		}
 		System.out.println("Enter new password:");
 		String newPassword = in.nextLine();
+		while (newPassword == null || newPassword.isEmpty()) {
+			System.out.println("Password cannot be empty");
+			newPassword = in.nextLine();
+		}
 		System.out.println("Enter new password again:");
 		if (!newPassword.equals(in.nextLine())) {
 			System.out.println("The password you entered does not match the first one.");
@@ -161,6 +169,7 @@ public class UserInterface {
 	}
 	
 	private void displayAggregateDonations(int fundNumber) {
+		
 		Fund fund = org.getFunds().get(fundNumber - 1);
 		System.out.println("\n\n");
 		System.out.println("Here is information about this fund:");
@@ -202,7 +211,23 @@ public class UserInterface {
 		}
 		int percentage = (int) (totalDonations * 100.0 / fund.getTarget());
 		System.out.println("Total donation amount: $" + totalDonations + " (" + percentage + "% of target)");
+		System.out.println("Enter 0 to delete this fund");
+		System.out.println("Enter 1 to go back to the listing of funds");
+		System.out.println("Enter 2 to look at each donation");
+		System.out.println("Enter 3 to make donations");
+		int option = in.nextInt();
+		in.nextLine();
+
+		if (option == 0) {
+			deleteFund(fundNumber); 
+		} else if (option == 2) {
+			displayFund(fundNumber);
+		} else if (option == 3) {
+			makeDonation(fundNumber);
+		}
+	
 	}
+	
 	
 	private void makeDonation(int fundNumber) {
 		Fund fund = org.getFunds().get(fundNumber - 1);
@@ -210,6 +235,7 @@ public class UserInterface {
 		String contributorid = in.nextLine();
 		while (contributorid.isEmpty() || !isContributorIdValid(contributorid, fundNumber)) {
 			System.out.println("Invalid contributor id, retry please");
+
 			contributorid = in.nextLine();
 		} 
 
@@ -218,6 +244,7 @@ public class UserInterface {
 		
 		while(donationamount.isEmpty() || !isAmountValid(donationamount) || Integer.parseInt(donationamount) < 0) {
 			System.out.println("Invalid amount, retry please");
+			
 			donationamount = in.nextLine();
 		}
 		System.out.println("Enter 1 to submit");
@@ -231,7 +258,7 @@ public class UserInterface {
 					List<Donation> donations = fund.getDonations();
 					donations.add(d);
 					fund.setDonations(donations);
-					displayAllDonations(fundNumber);
+					displayFund(fundNumber);
 				}
 			} catch (Exception e){
 				System.out.println(e.getMessage());
@@ -257,9 +284,6 @@ public class UserInterface {
 	        String name = dataManager.getContributorName(id);
 	        return name != null;
 	    } catch (Exception e) {
-	    	System.out.println(e.getMessage());
-            System.out.println("Error: Please try to again");
-            makeDonation(fundNumber);
             return false;
 	    }
 	}
