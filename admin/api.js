@@ -80,26 +80,37 @@ app.use('/editAccount', (req, res) => {
 	if (req.query.description) {
 		update.description = req.query.description;
 	}
+	if (req.query.funds) {
+		// Convert funds string to JSON array
+		var fundIds = JSON.parse(req.query.funds);
+		update.funds = [];
 
-	var action = { "$set": update };
+		Fund.find({ "_id": { "$in": fundIds } }, (err, funds) => {
+			if (err) {
+				res.json({ "status": "error", "data": err });
+			} else {
+				update.funds = funds.map((fund) => fund._id);
+				updateOrganization();
+			}
+		});
+	} else {
+		updateOrganization();
+	}
 
-	Organization.findOneAndUpdate(filter, action, { new: true }, (err, result) => {
-		if (err) {
-			res.json({ "status": "error", "data": err });
-		} else {
-			// Preserve the existing funds
-			result.funds = req.query.funds;
+	function updateOrganization() {
+		var action = { "$set": update };
 
-			result.save((err, updatedOrg) => {
-				if (err) {
-					res.json({ "status": "error", "data": err });
-				} else {
-					res.json({ "data": updatedOrg, "status": "success" });
-				}
-			});
-		}
-	});
+		Organization.findOneAndUpdate(filter, action, { new: true }, (err, result) => {
+			if (err) {
+				res.json({ "status": "error", "data": err });
+			} else {
+				res.json({ "data": result, "status": "success" });
+			}
+		});
+	}
 });
+
+
 
 
 /*

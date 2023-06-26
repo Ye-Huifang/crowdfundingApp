@@ -299,6 +299,7 @@ public class DataManager {
 		}
 	}
 
+
 	public Organization updateOrganizationInfo(String orgId, String orgName, String orgDescription) {
 		if (client == null) {
 			throw new IllegalStateException("WebClient cannot be null");
@@ -309,7 +310,7 @@ public class DataManager {
 
 		try {
 			Map<String, Object> map = new HashMap<>();
-			map.put("id", orgId); // Use "id" instead of "orgId"
+			map.put("id", orgId);
 			map.put("name", orgName);
 			map.put("description", orgDescription);
 			String response = client.makeRequest("/editAccount", map);
@@ -327,7 +328,7 @@ public class DataManager {
 
 			String status = (String) json.get("status");
 			if (status.equals("error")) {
-				String errorMessage = (String) json.get("error");
+				String errorMessage = (String) json.get("data");
 				throw new IllegalStateException(errorMessage);
 			}
 
@@ -335,7 +336,16 @@ public class DataManager {
 				JSONObject data = (JSONObject) json.get("data");
 				String name = (String) data.get("name");
 				String description = (String) data.get("description");
-				return new Organization(orgId, name, description);
+
+				Organization updatedOrg = new Organization(orgId, name, description);
+				List<Fund> existingFunds = updatedOrg.getFunds(); // Get existing funds
+
+				// Add existing funds to the updated organization
+				for (Fund existingFund : existingFunds) {
+					updatedOrg.addFund(existingFund);
+				}
+
+				return updatedOrg;
 			} else {
 				return null;
 			}
@@ -343,7 +353,8 @@ public class DataManager {
 			throw new IllegalStateException("Malformed JSON received");
 		}
 	}
-	
+
+
 	public Donation makeDonation(String contributorId, String fundId, String amount) {
 		if (client == null) {
 			throw new IllegalStateException("WebClient cannot be null");

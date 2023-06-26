@@ -111,6 +111,10 @@ public class UserInterface {
 			if (updatedOrg != null) {
 				org = updatedOrg;
 				System.out.println("Account information updated successfully!");
+
+				// Update the funds list manually
+				org.getFunds().clear();
+				org.getFunds().addAll(updatedOrg.getFunds());
 			} else {
 				System.out.println("Account information update failed.");
 			}
@@ -119,6 +123,7 @@ public class UserInterface {
 			System.out.println("Error: Please try again.");
 		}
 	}
+
 
 	public void createFund() {
 		try {
