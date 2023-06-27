@@ -40,34 +40,44 @@ public class DataManager_updateOrganizationInfo_Test {
     }
 
     @Test
-    public void testUpdateOrganizationWithExistingFunds() {
-        // create existing organization with some funds
-        Organization existingOrg = new Organization("org1", "OrgName1", "OrgDescription1");
-        Fund existingFund1 = new Fund("12345", "FundName1", "FundDescription1", 1000);
-        Fund existingFund2 = new Fund("67890", "FundName2", "FundDescription2", 2000);
-        existingOrg.addFund(existingFund1);
-        existingOrg.addFund(existingFund2);
+    public void testUpdateOrganizationInfoWithExistingFunds() {
+        // Create some funds and add them to an organization
+        List<Fund> funds = new ArrayList<>();
+        Fund fund1 = new Fund("f1", "Fund1", "Fund 1 description", 1000);
+        Fund fund2 = new Fund("f2", "Fund2", "Fund 2 description", 2000);
+        funds.add(fund1);
+        funds.add(fund2);
 
-        // create an updated organization
-        Organization updatedOrg = new Organization("org1", "UpdatedOrgName", "UpdatedOrgDescription");
+        Organization org = new Organization("12345", "OldOrgName", "OldOrgDescription");
+        org.setFund(funds);
 
-        // Get existing funds and add them to updated organization
-        List<Fund> existingFunds = existingOrg.getFunds();
-        for (Fund existingFund : existingFunds) {
-            updatedOrg.addFund(existingFund);
-        }
+        DataManager dm = new DataManager(new WebClient("localhost", 3001) {
+            @Override
+            public String makeRequest(String resource, Map<String, Object> queryParams) {
+                return "{\"status\":\"success\",\"data\":{\"name\":\"NewOrgName\",\"description\":\"NewOrgDescription\",\"funds\":[{\"id\":\"f1\",\"name\":\"Fund1\",\"description\":\"Fund 1 description\",\"target\":1000},{\"id\":\"f2\",\"name\":\"Fund2\",\"description\":\"Fund 2 description\",\"target\":2000}]}}";
+            }
+        });
 
-        // Verify the funds in the updated organization
-        List<Fund> updatedFunds = updatedOrg.getFunds();
-        assertEquals(existingFunds.size(), updatedFunds.size());
-        for (int i = 0; i < existingFunds.size(); i++) {
-            Fund expectedFund = existingFunds.get(i);
-            Fund actualFund = updatedFunds.get(i);
-            assertEquals(expectedFund.getId(), actualFund.getId());
-            assertEquals(expectedFund.getName(), actualFund.getName());
-            assertEquals(expectedFund.getDescription(), actualFund.getDescription());
-            assertEquals(expectedFund.getTarget(), actualFund.getTarget(), 0.001);
-        }
+        // Pass the correct orgId "12345" here
+        Organization updatedOrg = dm.updateOrganizationInfo("12345", "NewOrgName", "NewOrgDescription");
+        assertNotNull(updatedOrg);
+        assertEquals("12345", updatedOrg.getId());
+        assertEquals("NewOrgName", updatedOrg.getName());
+        assertEquals("NewOrgDescription", updatedOrg.getDescription());
+
+        // Assert that the funds were added to the organization
+        List<Fund> existingFunds = updatedOrg.getFunds();
+        assertEquals(2, existingFunds.size());
+
+        Fund existingFund1 = existingFunds.get(0);
+        assertEquals("f1", existingFund1.getId());
+        assertEquals("Fund1", existingFund1.getName());
+        assertEquals("Fund 1 description", existingFund1.getDescription());
+
+        Fund existingFund2 = existingFunds.get(1);
+        assertEquals("f2", existingFund2.getId());
+        assertEquals("Fund2", existingFund2.getName());
+        assertEquals("Fund 2 description", existingFund2.getDescription());
     }
 
 

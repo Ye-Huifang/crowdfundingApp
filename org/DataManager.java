@@ -3,6 +3,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.ArrayList;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -338,11 +339,23 @@ public class DataManager {
 				String description = (String) data.get("description");
 
 				Organization updatedOrg = new Organization(orgId, name, description);
-				List<Fund> existingFunds = updatedOrg.getFunds(); // Get existing funds
 
-				// Add existing funds to the updated organization
-				for (Fund existingFund : existingFunds) {
-					updatedOrg.addFund(existingFund);
+				// Update funds for the organization
+				JSONArray fundsArray = (JSONArray) data.get("funds");
+				if (fundsArray != null) {
+					List<Fund> funds = new ArrayList<>();
+					for (Object fundObj : fundsArray) {
+						if (fundObj instanceof JSONObject) {
+							JSONObject fundJson = (JSONObject) fundObj;
+							String fundId = (String) fundJson.get("id");
+							String fundName = (String) fundJson.get("name");
+							String fundDescription = (String) fundJson.get("description");
+							long fundTarget = (long) fundJson.get("target");
+							Fund fund = new Fund(fundId, fundName, fundDescription, fundTarget);
+							funds.add(fund);
+						}
+					}
+					updatedOrg.setFund(funds);
 				}
 
 				return updatedOrg;
@@ -353,6 +366,7 @@ public class DataManager {
 			throw new IllegalStateException("Malformed JSON received");
 		}
 	}
+
 
 	public Donation makeDonation(String contributorId, String fundId, String amount) {
 		if (client == null) {
