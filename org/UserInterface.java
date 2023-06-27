@@ -106,15 +106,27 @@ public class UserInterface {
 			System.out.println("Enter the new organization description (leave blank to keep the current description):");
 			String newOrgDescription = in.nextLine();
 
-			Organization updatedOrg = dataManager.updateOrganizationInfo(org.getId(), newOrgName, newOrgDescription);
+			List<Fund> existingFunds = authenticatedOrg.getFunds(); // Get existing funds before updating
+
+			Organization updatedOrg = dataManager.updateOrganizationInfo(authenticatedOrg.getId(), newOrgName, newOrgDescription);
 
 			if (updatedOrg != null) {
-				org = updatedOrg;
-				System.out.println("Account information updated successfully!");
+				// Replace the organization with the updated version
+				authenticatedOrg = updatedOrg;
 
-				// Update the funds list manually
-				org.getFunds().clear();
-				org.getFunds().addAll(updatedOrg.getFunds());
+				// Preserve the existing funds after account updating
+				authenticatedOrg.getFunds().addAll(existingFunds);
+
+				System.out.println("Account information updated successfully!");
+				System.out.println("\nThere are " + authenticatedOrg.getFunds().size() + " funds in this organization:");
+				int fundCount = 1;
+				for (Fund fund : authenticatedOrg.getFunds()) {
+					System.out.println(fundCount++ + ": " + fund.getName());
+				}
+				System.out.println("Enter the fund number to see more information.");
+				System.out.println("Enter 0 to create a new fund");
+				System.out.println("Enter c to change password");
+				System.out.println("Enter e to edit account information");
 			} else {
 				System.out.println("Account information update failed.");
 			}
@@ -183,7 +195,7 @@ public class UserInterface {
 			in.nextLine();
 
 			if (option == 0) {
-				deleteFund(fundNumber); 
+				deleteFund(fundNumber);
 			} else if (option == 2) {
 				displayAggregateDonations(fundNumber);
 			} else if (option == 3) {
@@ -195,20 +207,20 @@ public class UserInterface {
 			displayFund(fundNumber);
 		}
 	}
-	
+
+
 	private void displayAllDonations(int fundNumber) {
 		Fund fund = org.getFunds().get(fundNumber - 1);
-		System.out.println("\n\n");
-		System.out.println("Here is information about this fund:");
-		System.out.println("Name: " + fund.getName());
-		System.out.println("Description: " + fund.getDescription());
-		System.out.println("Target: $" + fund.getTarget());
 		List<Donation> donations = fund.getDonations();
 		System.out.println("Number of donations: " + donations.size());
+		long donationamount = 0;
 		for (Donation donation : donations) {
 			System.out.println("* " + donation.getContributorName() + ": $" + donation.getAmount() + " on " + donation.getDate());
+			donationamount+=donation.getAmount();
 		}
-		
+		int percentage = (int) (donationamount * 100.0 / fund.getTarget());
+		System.out.println("Total donation amount: $" + donationamount + " (" + percentage + "% of target)");
+
 	}
 	
 	private void displayAggregateDonations(int fundNumber) {

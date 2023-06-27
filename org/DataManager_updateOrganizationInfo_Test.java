@@ -40,27 +40,33 @@ public class DataManager_updateOrganizationInfo_Test {
     }
 
     @Test
-    public void testAddExistingDonationsToUpdatedFund() {
-        // Create a mock fund and existing donations
-        Fund mockFund = new Fund("12345", "FundName", "FundDescription", 1000);
-        List<Donation> existingDonations = new LinkedList<>();
-        existingDonations.add(new Donation("Donor1", "name1", 100, "2022-01-01"));
-        existingDonations.add(new Donation("Donor2", "name2", 200, "2022-01-02"));
-        mockFund.setDonations(existingDonations);
+    public void testUpdateOrganizationWithExistingFunds() {
+        // create existing organization with some funds
+        Organization existingOrg = new Organization("org1", "OrgName1", "OrgDescription1");
+        Fund existingFund1 = new Fund("12345", "FundName1", "FundDescription1", 1000);
+        Fund existingFund2 = new Fund("67890", "FundName2", "FundDescription2", 2000);
+        existingOrg.addFund(existingFund1);
+        existingOrg.addFund(existingFund2);
 
-        // Create a mock updated fund
-        Fund mockUpdatedFund = new Fund("12345", "NewFundName", "NewFundDescription", 2000);
+        // create an updated organization
+        Organization updatedOrg = new Organization("org1", "UpdatedOrgName", "UpdatedOrgDescription");
 
-        // Iterate over the existing donations and add them to the updated fund
-        List<Donation> updatedDonations = mockUpdatedFund.getDonations();
-        updatedDonations.addAll(existingDonations);
+        // Get existing funds and add them to updated organization
+        List<Fund> existingFunds = existingOrg.getFunds();
+        for (Fund existingFund : existingFunds) {
+            updatedOrg.addFund(existingFund);
+        }
 
-        // Verify that the updated fund has the same donations as the mock fund
-        assertEquals(existingDonations.size(), updatedDonations.size());
-        for (int i = 0; i < existingDonations.size(); i++) {
-            Donation expectedDonation = existingDonations.get(i);
-            Donation actualDonation = updatedDonations.get(i);
-            assertEquals(expectedDonation.getAmount(), actualDonation.getAmount());
+        // Verify the funds in the updated organization
+        List<Fund> updatedFunds = updatedOrg.getFunds();
+        assertEquals(existingFunds.size(), updatedFunds.size());
+        for (int i = 0; i < existingFunds.size(); i++) {
+            Fund expectedFund = existingFunds.get(i);
+            Fund actualFund = updatedFunds.get(i);
+            assertEquals(expectedFund.getId(), actualFund.getId());
+            assertEquals(expectedFund.getName(), actualFund.getName());
+            assertEquals(expectedFund.getDescription(), actualFund.getDescription());
+            assertEquals(expectedFund.getTarget(), actualFund.getTarget(), 0.001);
         }
     }
 

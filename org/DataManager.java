@@ -354,7 +354,6 @@ public class DataManager {
 		}
 	}
 
-
 	public Donation makeDonation(String contributorId, String fundId, String amount) {
 		if (client == null) {
 			throw new IllegalStateException("WebClient cannot be null");
